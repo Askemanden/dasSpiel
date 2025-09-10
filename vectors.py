@@ -38,7 +38,7 @@ class Vector2:
 class Vector2f(Vector2):
     
     def __init__(self, x : float, y : float):
-        super().__init__(x, y)
+        super(x, y)
 
 class Vector2i(Vector2):
 
