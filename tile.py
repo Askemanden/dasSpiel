@@ -1,8 +1,31 @@
 from vectors import Vector2i
+from signals import Signal
+import pygame
+from settings import *
+from biome import BiomeTypes
 
 class Tile:
+    def __init__(self, x : int, y : int, passable : bool, texture : pygame.Surface):
+        self.position : Vector2i = Vector2i(x,y)
+        self.passable : bool = passable
+        self.texture : pygame.Surface = texture
+        self.texture.transform.scale(texture, (TILE_SIZE,TILE_SIZE))
+        self.on_interact : Signal = Signal()
 
-    def __init__(self, x, y, passable, texture):
-        self.position = Vector2i(x,y)
-        self.passable = passable
-        self.texture = texture
+class Stone(Tile):
+    def __init__(self, x, y, biome : int):
+        if(biome == BiomeTypes.forest):
+            texture = pygame.image.load("resources/textures/stone.png").convert_alpha()
+        super(x,y,False,texture)
+
+class Wood(Tile):
+    def __init__(self, x, y, biome : int):
+        if(biome == BiomeTypes.forest):
+            texture = pygame.image.load("resources/textures/wood.png").convert_alpha()
+        super(x,y,False,texture)
+
+class Bush(Tile):
+    def __init__(self, x, y, biome : int):
+        if(biome == BiomeTypes.forest):
+            texture = pygame.image.load("resources/textures/bush.png").convert_alpha()
+        super(x,y,False,texture)
