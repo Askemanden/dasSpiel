@@ -42,16 +42,17 @@ class Vector2:
 class Vector2f(Vector2):
     
     def __init__(self, x : float, y : float):
-        super(x, y)
+        super.__init__(x, y)
 
 class Vector2i(Vector2):
 
     def __init__(self, x : int, y : int):
-        super(x, y)
+        super.__init__(x, y)
 
     def __init__(self, vector : Vector2f):
-        super(int(vector.x), int(vector.y))
+        super.__init__(int(vector.x), int(vector.y))
     
     def change_values(self, x : int, y : int):
         self.x = int(x)
         self.y = int(x)
+()
