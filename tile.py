@@ -14,18 +14,19 @@ class Tile:
 
 class Stone(Tile):
     def __init__(self, x, y, biome : int):
-        if(biome == BiomeTypes.forest):
+        if(biome == BiomeTypes.FOREST):
             texture = pygame.image.load("resources/textures/stone.png").convert_alpha()
         super.__init__(x,y,False,texture)
 
 class Wood(Tile):
     def __init__(self, x, y, biome : int):
-        if(biome == BiomeTypes.forest):
+        if(biome == BiomeTypes.FOREST):
             texture = pygame.image.load("resources/textures/wood.png").convert_alpha()
         super.__init__(x,y,False,texture)
 
 class Bush(Tile):
     def __init__(self, x, y, biome : int):
-        if(biome == BiomeTypes.forest):
+        if(biome == BiomeTypes.FOREST):
             texture = pygame.image.load("resources/textures/bush.png").convert_alpha()
         super.__init__(x,y,True,texture)
+

@@ -30,3 +30,4 @@ class World:
         self.current_chunk_pos += direction
         seed = int(self.seed * self.current_chunk_pos.length())
         feature_noise = PerlinNoise(octaves = 2, seed = seed)
+        
