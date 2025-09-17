@@ -25,7 +25,7 @@ class container:
         self.on_click = function
         self.container_type = type
 
-
+# Testkode
 if __name__ == ("__main__"):
     pygame.init()
     screen = pygame.display.set_mode((800, 500))
