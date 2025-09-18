@@ -9,7 +9,7 @@ class Tile:
         self.position : Vector2i = Vector2i(x,y)
         self.passable : bool = passable
         self.texture : pygame.Surface = texture
-        self.texture.transform.scale(texture, (TILE_SIZE,TILE_SIZE))
+        pygame.transform.scale(self.texture, (TILE_SIZE,TILE_SIZE))
         self.on_interact : Signal = Signal()
     
     def __str__(self):
