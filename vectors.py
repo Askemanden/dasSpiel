@@ -24,7 +24,8 @@ class Vector2:
         return Vector2(self.x*scalar, self.y*scalar)
 
     def __iadd__(self, other : "Vector2"):
-        self.change_values(self + other)
+        result = self + other
+        self.change_values(result.x, result.y)
     
     def __itruediv__(self, scalar : float):
         self.change_values(self/scalar)
@@ -38,15 +39,12 @@ class Vector2:
 class Vector2f(Vector2):
     
     def __init__(self, x : float, y : float):
-        super(x, y)
+        super().__init__(x, y)
 
 class Vector2i(Vector2):
 
     def __init__(self, x : int, y : int):
-        super(x, y)
-
-    def __init__(self, vector : Vector2f):
-        super(int(vector.x), int(vector.y))
+        super().__init__(x, y)
     
     def change_values(self, x : int, y : int):
         self.x = int(x)
