@@ -11,6 +11,9 @@ class Tile:
         self.texture : pygame.Surface = texture
         self.texture.transform.scale(texture, (TILE_SIZE,TILE_SIZE))
         self.on_interact : Signal = Signal()
+    
+    def __str__(self):
+        return f"pos {self.position}, passable {self.passable}"
 
 class Stone(Tile):
     def __init__(self, x, y, biome : int):
