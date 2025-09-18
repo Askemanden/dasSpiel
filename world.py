@@ -55,4 +55,4 @@ class World:
 if __name__ == "__main__":
     print(Vector2i(0,0).x, Vector2i(0,0).y)
     world = World()
-    print(world.seed, " ", world.changes, " ", world.biomeNoise, " ", world.current_chunk_pos, " ", world.chunk)
+    print(world.seed, " ", world.changes, " ", world.biomeNoise, " ", world.current_chunk_pos, " ", world.current_biome, " ", world.features, " ", world.real_tiles)
