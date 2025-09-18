@@ -19,15 +19,20 @@ class World:
         self.changes : list = []
         self.biomeNoise = PerlinNoise(octaves = 4, seed = self.seed)
         self.current_chunk_pos : Vector2i = Vector2i(0,0)
-        chunk : Chunk = self.generate_chunk()
-        self.current_biome : Biome = chunk.biome
-        self.features : list[Feature] = chunk.features
-        self.real_tiles : dict[Vector2i, Tile] = chunk.tiles
+        self.chunk : Chunk = self.generate_chunk()
+        self.current_biome : Biome = self.chunk.biome
+        self.features : list[Feature] = self.chunk.features
+        self.real_tiles : dict[Vector2i, Tile] = self.chunk.tiles
 
 
     
     def generate_chunk(self, direction : Vector2i) -> Chunk:
         self.current_chunk_pos += direction
+        self.current_chunk_pos += direction
         seed = int(self.seed * self.current_chunk_pos.length())
         feature_noise = PerlinNoise(octaves = 2, seed = seed)
+        biome = Biome(self.biomeNoise)
         
+if __name__ == "__main__":
+    world = World()
+    print(world.seed, " ", world.changes, " ", world.biomeNoise, " ", world.current_chunk_pos, " ", world.chunk)

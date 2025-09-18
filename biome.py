@@ -6,5 +6,5 @@ class BiomeTypes(Enum):
     OCEAN = 2
 
 class Biome:
-    def __init__(self, type : int):
+    def __init__(self, type : float):
         self.type = type
