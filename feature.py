@@ -1,9 +1,9 @@
 from vectors import Vector2i
 from tile import *
 from biome import BiomeTypes
-from enum import Enum
+from enum import IntEnum
 
-class FeatureTypes(Enum):
+class FeatureTypes(IntEnum):
     LARGE_ROCK = 0
     SMALL_ROCK = 1
     BUSH = 2
@@ -13,9 +13,12 @@ class FeatureTypes(Enum):
 class Feature:
 
     def __init__(self, position : Vector2i, type : float, biome : BiomeTypes):
-        self.type = int(type*FeatureTypes.LENGTH)
+        self.type = min(int(type*FeatureTypes.LENGTH),FeatureTypes.LENGTH - 1)
         self.position = position
         self.tiles = self.make_tiles()
     
     def make_tiles(self) -> list[Tile]:
-        pass
+        return []
+
+    def __str__(self):
+        return f"type {self.type}, position {self.position}, tiles {self.tiles}"
