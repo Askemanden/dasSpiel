@@ -24,7 +24,7 @@ class Pathfinder:
     def in_bounds(self, x, y):
         return 0 <= x < MAP_WIDTH and 0 <= y < MAP_HEIGHT
 
-    def octile_heuristic(self, a: Vector2i, b: Vector2i) -> int:
+    def heuristic(self, a: Vector2i, b: Vector2i) -> int:
         D=70
         D2=99
         dx = abs(a.x - b.x)
@@ -35,6 +35,8 @@ class Pathfinder:
         if not self.in_bounds(start.x, start.y) or not self.in_bounds(goal.x, goal.y):
             return None # start eller mål er uden for grænserne
         if not self.is_passable(start.x, start.y) or not self.is_passable(goal.x, goal.y):
+            return None # start eller mål er ikke passable
+        
         open_heap = []
         heappush(open_heap, (0, start))
         came_from = {}
