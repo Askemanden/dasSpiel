@@ -3,8 +3,7 @@ from enum import IntEnum
 class BiomeTypes(IntEnum):
     FOREST = 0
     MOUNTAIN = 1
-    OCEAN = 2
-    LENGTH = 3
+    LENGTH = 2
 
 
 class Biome:
