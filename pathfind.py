@@ -10,7 +10,13 @@ class Pathfinder:
     #Pathfinding baseret på A* algoritmen
     def __init__(self, real_tiles:dict[Vector2i,Tile]):
 
+        for key in real_tiles.keys():
+            print(f"input {real_tiles.get(key)}")
+
         self.real_tiles : dict[Vector2i,Tile] = real_tiles
+
+        for key in self.real_tiles.keys():
+            print(f"res {self.real_tiles.get(key)}")
 
         self.directions = [
             (0, 1, 70), (0, -1, 70), (1, 0, 70), (-1, 0, 70),
@@ -19,7 +25,14 @@ class Pathfinder:
 
     def is_passable(self, x, y):
         tile = self.real_tiles.get(Vector2i(x, y))
-        return tile is not None and tile.passable
+        print(f"tile {tile}")
+        if tile is None:
+            print(f"None {tile == None}")
+            return False
+        elif not tile.passable:
+            print(f"passable {not tile.passable}")
+            return False
+        return True
 
     def in_bounds(self, x, y):
         return 0 <= x < MAP_WIDTH and 0 <= y < MAP_HEIGHT
@@ -32,17 +45,26 @@ class Pathfinder:
         return D * (dx + dy) + (D2 - 2 * D) * min(dx, dy)
 
     def find_path(self, start: Vector2i, goal: Vector2i):
+        for key in self.real_tiles.keys():
+            print(self.real_tiles.get(key))
         if not self.in_bounds(start.x, start.y) or not self.in_bounds(goal.x, goal.y):
+            print(0)
             return None # start eller mål er uden for grænserne
         if not self.is_passable(start.x, start.y) or not self.is_passable(goal.x, goal.y):
+            print(not self.is_passable(start.x, start.y))
+            print(not self.is_passable(goal.x, goal.y))
+            print(-1)
             return None # start eller mål er ikke passable
         
         open_heap = []
         heappush(open_heap, (0, start))
         came_from = {}
         g_score = { (start.x, start.y): 0 }
-
+        print(1)
         while open_heap:
+            print(2)
+            print(open_heap)
+
             _, current = heappop(open_heap)
 
             if (current.x, current.y) == (goal.x, goal.y):
@@ -67,7 +89,6 @@ class Pathfinder:
                     f_score = tentative_g + self.heuristic(neighbor, goal)
                     heappush(open_heap, (f_score, neighbor))
                     came_from[(nx, ny)] = current
-
         return None  # ingen sti fundet
 
     def reconstruct_path(self, came_from, current):

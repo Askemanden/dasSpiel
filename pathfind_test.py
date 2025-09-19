@@ -29,6 +29,16 @@ def make_test_map():
 
 if __name__ == "__main__":
     tiles = make_test_map()
+
+    tiles = {
+        Vector2i(0,1) : Tile(0,1,False,dummy_texture),
+        Vector2i(3,1) : Tile(3,1,False,dummy_texture)
+    }
+
+    print(f"test {tiles.get(Vector2i(0,1))}")
+    for key in tiles.keys():
+        print(tiles.get(key))
+
     pf = Pathfinder(tiles)
 
     start = Vector2i(0, 0)
