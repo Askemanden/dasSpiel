@@ -28,7 +28,7 @@ class Pathfinder:
         print(f"tile {tile}")
         if tile is None:
             print(f"None {tile == None}")
-            return False
+            return True
         elif not tile.passable:
             print(f"passable {not tile.passable}")
             return False

@@ -9,11 +9,17 @@ BIOME_COLOR_MODULATIONS = {
     BiomeTypes.MOUNTAIN : (255, 0, 30)
 }
 
+# TODO : LAV PYGAME INITIALIZER SÅ DISSE LINJER IKKE BEHØVES
+pygame.init()
+display = pygame.display.set_mode((800, 600))
+pygame.display.set_caption('Game')
+clock = pygame.time.Clock()
+
 STONE_TEXTURE = pygame.transform.scale(pygame.image.load("resources/textures/stone.png").convert_alpha(), (TILE_SIZE,TILE_SIZE))
 WOOD_TEXTURE = pygame.transform.scale(pygame.image.load("resources/textures/wood.png").convert_alpha(), (TILE_SIZE,TILE_SIZE))
 BUSH_TEXTURE = pygame.transform.scale(pygame.image.load("resources/textures/bush.png").convert_alpha(), (TILE_SIZE,TILE_SIZE))
 
-def modulate_texture(base_texture : pygame.Surface, biome : BiomeTypes):
+def modulate_texture(base_texture : pygame.Surface, biome : BiomeTypes)->pygame.Surface:
     tint = BIOME_COLOR_MODULATIONS.get(biome, (255, 255, 255))
     texture = base_texture.copy()
     texture.fill(tint, special_flags=pygame.BLEND_RGBA_MULT)
