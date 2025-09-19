@@ -1,3 +1,5 @@
+import math
+
 class Vector2:
 
     def __init__(self, x, y):
@@ -10,6 +12,9 @@ class Vector2:
 
     def change_values(self, other : "Vector2") -> None:
         self.change_values(other.x, other.y)
+    
+    def length(self) -> float:
+        return math.sqrt(self.x^2+self.y^2)
     
     def __add__(self, other : "Vector2") -> "Vector2":
         return Vector2(self.x + other.x, self.y + other.y)
@@ -24,7 +29,8 @@ class Vector2:
         return Vector2(self.x*scalar, self.y*scalar)
 
     def __iadd__(self, other : "Vector2"):
-        self.change_values(self + other)
+        result = self + other
+        self.change_values(result.x, result.y)
     
     def __itruediv__(self, scalar : float):
         self.change_values(self/scalar)
@@ -34,19 +40,19 @@ class Vector2:
 
     def __imul__(self, scalar : float):
         self.change_values(self * scalar)
+    
+    def __str__(self):
+        return f"({self.x},{self.y})"
 
 class Vector2f(Vector2):
     
     def __init__(self, x : float, y : float):
-        super.__init__(x, y)
+        super().__init__(x, y)
 
 class Vector2i(Vector2):
 
     def __init__(self, x : int, y : int):
-        super.__init__(x, y)
-
-    def __init__(self, vector : Vector2f):
-        super.__init__(int(vector.x), int(vector.y))
+        super().__init__(x, y)
     
     def change_values(self, x : int, y : int):
         self.x = int(x)
