@@ -20,7 +20,10 @@ class Feature:
     def __init__(self, position : Vector2i, type : float, biome : BiomeTypes, chunk_pos : Vector2i, world_seed : int):
         self.world_seed = world_seed
         self.chunk_pos = chunk_pos
+        type = (type+1)/2 # Move to range [0,1]
         self.type = min(int(type*FeatureTypes.LENGTH),FeatureTypes.LENGTH - 1)
+        print(type)
+        print(self.type)
         self.position = position
         self.biome = biome
         self.tiles = self.make_tiles()
