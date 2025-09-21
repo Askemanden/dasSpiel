@@ -22,8 +22,6 @@ class Feature:
         self.chunk_pos = chunk_pos
         type = (type+1)/2 # Move to range [0,1]
         self.type = min(int(type*FeatureTypes.LENGTH),FeatureTypes.LENGTH - 1)
-        print(type)
-        print(self.type)
         self.position = position
         self.biome = biome
         self.tiles = self.make_tiles()

@@ -21,7 +21,11 @@ BIOME_TEXTURES.get(BiomeTypes.MOUNTAIN).fill((255,20,30))
 
 class Biome:
     def __init__(self, type : float):
+        print(type)
+        type = (type+1)/2 # [-1,1] -> [0,1]
+        print(type)
         self.type : BiomeTypes = min(int(type * BiomeTypes.LENGTH),BiomeTypes.LENGTH - 1)
+        print(type)
         self.texture : pygame.Surface = BIOME_TEXTURES.get(self.type, DEFAULT_TEXTURE)
     
     def __str__(self):

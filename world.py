@@ -33,7 +33,7 @@ class World:
     def generate_chunk(self) -> Chunk:
         seed = int(self.seed * self.current_chunk_pos.length())
         feature_noise = PerlinNoise(octaves = 2, seed = seed)
-        biome = Biome(self.biomeNoise([self.current_chunk_pos.x,self.current_chunk_pos.y]))
+        biome = Biome(self.biomeNoise([self.current_chunk_pos.x + 0.1,self.current_chunk_pos.y + 0.1])) # Add 0.1 to compensate for perlin noise values being 0 at integer coordinates
         features : list[Feature]= []
         for i in range(0, MAP_WIDTH, FEATURE_FREQUENCY):
             for j in range(0, MAP_HEIGHT, FEATURE_FREQUENCY):
