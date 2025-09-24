@@ -27,4 +27,4 @@ if __name__ == "__main__":
     signal1.connect("testfunc1", testfunc1)
     signal1.connect("testfunc2", testfunc2)
 
-    signal1.emit([1,2,"dumdum",(3,2,"aaa")])
+    signal1.emit([1,2,"dumdum",(3,2,"AAA-Batteri")])
