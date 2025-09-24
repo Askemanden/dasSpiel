@@ -15,6 +15,11 @@ class Vector2:
     
     def length(self) -> float:
         return math.sqrt(self.x**2+self.y**2)
+
+    def distance_to(self, other : "Vector2") -> float:
+        dx = self.x - other.x
+        dy = self.y - other.y
+        return (dx * dx + dy * dy) ** 0.5
     
     def __add__(self, other : "Vector2") -> "Vector2":
         return Vector2(self.x + other.x, self.y + other.y)
@@ -47,6 +52,10 @@ class Vector2:
     
     def __str__(self):
         return f"({self.x},{self.y})"
+    
+    def __repr__(self):
+        return f"Vector2i({self.x}, {self.y})"
+
     
     def __eq__(self, other):
         return isinstance(other, Vector2) and self.x == other.x and self.y == other.y

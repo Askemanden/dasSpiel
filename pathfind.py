@@ -1,101 +1,92 @@
-'''
-Pathfinding modul ved brug af A* algoritmen.
-'''
-from heapq import heappush, heappop
+import heapq
+import math
 from vectors import Vector2i
-from tile import Tile
-from settings import *
 
-class Pathfinder:
-    #Pathfinding baseret på A* algoritmen
-    def __init__(self, real_tiles:dict[Vector2i,Tile]):
+def astar(
+    start: Vector2i,
+    goal: Vector2i,
+    width: int,
+    height: int,
+    blocked: set[Vector2i]
+) -> list[Vector2i] | None:
+    """
+    A* on an 8-connected grid with diagonal cost sqrt(2).
+    Diagonal moves are disallowed if they would "cut a corner":
+    i.e., if either of the two orthogonal tiles along the diagonal is blocked.
+    """
 
-        for key in real_tiles.keys():
-            print(f"input {real_tiles.get(key)}")
+    directions: list[tuple[int, int]] = [
+        (1, 0), (-1, 0), (0, 1), (0, -1),
+        (1, 1), (1, -1), (-1, 1), (-1, -1)
+    ]
 
-        self.real_tiles : dict[Vector2i,Tile] = real_tiles
+    def in_bounds(x: int, y: int) -> bool:
+        return 0 <= x < width and 0 <= y < height
 
-        for key in self.real_tiles.keys():
-            print(f"res {self.real_tiles.get(key)}")
+    def is_blocked(x: int, y: int) -> bool:
+        return (not in_bounds(x, y)) or (Vector2i(x, y) in blocked)
 
-        self.directions = [
-            (0, 1, 70), (0, -1, 70), (1, 0, 70), (-1, 0, 70),
-            (1, 1, 99), (-1, 1, 99), (1, -1, 99), (-1, -1, 99)
-        ]
+    def can_move(current: Vector2i, dx: int, dy: int) -> bool:
+        # Disallow corner cutting for diagonals:
+        # moving from (x,y) to (x+dx,y+dy) requires both (x+dx,y) and (x,y+dy) to be free.
+        if dx != 0 and dy != 0:
+            side_a_x, side_a_y = current.x + dx, current.y
+            side_b_x, side_b_y = current.x, current.y + dy
+            if is_blocked(side_a_x, side_a_y) or is_blocked(side_b_x, side_b_y):
+                return False
+        # Also require destination to be free.
+        nx, ny = current.x + dx, current.y + dy
+        return in_bounds(nx, ny) and (Vector2i(nx, ny) not in blocked)
 
-    def is_passable(self, x, y):
-        tile = self.real_tiles.get(Vector2i(x, y))
-        print(f"tile {tile}")
-        if tile is None:
-            print(f"None {tile == None}")
-            return True
-        elif not tile.passable:
-            print(f"passable {not tile.passable}")
-            return False
-        return True
+    def move_cost(dx: int, dy: int) -> float:
+        return math.sqrt(2) if dx != 0 and dy != 0 else 1.0
 
-    def in_bounds(self, x, y):
-        return 0 <= x < MAP_WIDTH and 0 <= y < MAP_HEIGHT
+    def heuristic(a: Vector2i, b: Vector2i) -> float:
+        # Octile distance (admissible and consistent for 8-connected grids)
+        dx, dy = abs(a.x - b.x), abs(a.y - b.y)
+        return (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
 
-    def heuristic(self, a: Vector2i, b: Vector2i) -> int:
-        D=70
-        D2=99
-        dx = abs(a.x - b.x)
-        dy = abs(a.y - b.y)
-        return D * (dx + dy) + (D2 - 2 * D) * min(dx, dy)
+    # Priority queue with a tie-breaker counter to avoid comparing Vector2i
+    open_set: list[tuple[float, int, Vector2i]] = []
+    counter: int = 0
+    heapq.heappush(open_set, (0.0, counter, start))
+    counter += 1
 
-    def find_path(self, start: Vector2i, goal: Vector2i):
-        for key in self.real_tiles.keys():
-            print(self.real_tiles.get(key))
-        if not self.in_bounds(start.x, start.y) or not self.in_bounds(goal.x, goal.y):
-            print(0)
-            return None # start eller mål er uden for grænserne
-        if not self.is_passable(start.x, start.y) or not self.is_passable(goal.x, goal.y):
-            print(not self.is_passable(start.x, start.y))
-            print(not self.is_passable(goal.x, goal.y))
-            print(-1)
-            return None # start eller mål er ikke passable
-        
-        open_heap = []
-        heappush(open_heap, (0, start))
-        came_from = {}
-        g_score = { (start.x, start.y): 0 }
-        print(1)
-        while open_heap:
-            print(2)
-            print(open_heap)
+    came_from: dict[Vector2i, Vector2i] = {}
+    g_score: dict[Vector2i, float] = {start: 0.0}
 
-            _, current = heappop(open_heap)
+    while open_set:
+        _, _, current = heapq.heappop(open_set)
 
-            if (current.x, current.y) == (goal.x, goal.y):
-                return self.reconstruct_path(came_from, current)
+        if current == goal:
+            path: list["Vector2i"] = []
+            while current in came_from:
+                path.append(current)
+                current = came_from[current]
+            path.append(start)
+            return path[::-1]
 
-            for dx, dy, cost in self.directions:
-                nx, ny = current.x + dx, current.y + dy
-                if not self.in_bounds(nx, ny):
-                    continue
-                if not self.is_passable(nx, ny): 
-                    continue
+        for dx, dy in directions:
+            if not can_move(current, dx, dy):
+                continue
 
-            if dx !=0 and dy !=0:
-                if not (self.is_passable(current.x + dx, current.y) and self.is_passable(current.x, current.y + dy)):
-                    continue
+            nx, ny = current.x + dx, current.y + dy
+            neighbor = Vector2i(nx, ny)
 
-                neighbor = Vector2i(nx, ny)
-                tentative_g = g_score[(current.x, current.y)] + cost
+            tentative_g = g_score[current] + move_cost(dx, dy)
+            if neighbor not in g_score or tentative_g < g_score[neighbor]:
+                g_score[neighbor] = tentative_g
+                f_score = tentative_g + heuristic(neighbor, goal)
+                heapq.heappush(open_set, (f_score, counter, neighbor))
+                counter += 1
+                came_from[neighbor] = current
 
-                if (nx, ny) not in g_score or tentative_g < g_score[(nx, ny)]:
-                    g_score[(nx, ny)] = tentative_g
-                    f_score = tentative_g + self.heuristic(neighbor, goal)
-                    heappush(open_heap, (f_score, neighbor))
-                    came_from[(nx, ny)] = current
-        return None  # ingen sti fundet
+    return None
 
-    def reconstruct_path(self, came_from, current):
-        path = [current]
-        while (current.x, current.y) in came_from:
-            current = came_from[(current.x, current.y)]
-            path.append(current)
-        path.reverse()
-        return path
+if __name__ == "__main__":
+    start = Vector2i(0, 0)
+    goal = Vector2i(3, 3)
+    blocked = {Vector2i(1, 2), Vector2i(3,2)}
 
+    path = astar(start, goal, 10, 10, blocked)
+    print("Path:", path)
