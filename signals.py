@@ -13,3 +13,18 @@ class Signal:
     def emit(self, params : list):
         for key in self.connections.keys():
             self.connections[key](params)
+
+if __name__ == "__main__":
+    signal1 = Signal()
+
+    def testfunc1(params : list):
+        print(params)
+    
+    def testfunc2(params : list):
+        for param in params:
+            print(param)
+    
+    signal1.connect("testfunc1", testfunc1)
+    signal1.connect("testfunc2", testfunc2)
+
+    signal1.emit([1,2,"dumdum",(3,2,"aaa")])

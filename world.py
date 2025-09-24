@@ -5,6 +5,7 @@ from tile import Tile
 from random import randint
 from perlin_noise import PerlinNoise
 from settings import *
+import pygame
 
 class Chunk:
     def __init__(self, biome : Biome, features : list[Feature], tiles : dict[Vector2i, Tile]):
@@ -32,12 +33,12 @@ class World:
     def generate_chunk(self) -> Chunk:
         seed = int(self.seed * self.current_chunk_pos.length())
         feature_noise = PerlinNoise(octaves = 2, seed = seed)
-        biome = Biome(self.biomeNoise([self.current_chunk_pos.x,self.current_chunk_pos.y]))
+        biome = Biome(self.biomeNoise([self.current_chunk_pos.x + 0.1,self.current_chunk_pos.y + 0.1])) # Add 0.1 to compensate for perlin noise values being 0 at integer coordinates
         features : list[Feature]= []
         for i in range(0, MAP_WIDTH, FEATURE_FREQUENCY):
             for j in range(0, MAP_HEIGHT, FEATURE_FREQUENCY):
                 noise_val = feature_noise([i / MAP_WIDTH, j / MAP_HEIGHT])
-                features.append(Feature(Vector2i(i, j), noise_val,biome.type))
+                features.append(Feature(Vector2i(i, j), noise_val,biome.type,self.current_chunk_pos,self.seed))
         tiles_list : list[Tile] = []
 
         for feature in features:
@@ -50,9 +51,32 @@ class World:
         
         return Chunk(biome, features, tiles)
 
+    def draw(self, surface : pygame.Surface):
+        self.current_biome.draw(surface)
+        for tile in self.real_tiles.values():
+            tile.draw(surface)
+
+
 
         
 if __name__ == "__main__":
-    print(Vector2i(0,0).x, Vector2i(0,0).y)
+    pygame.init()
+    screen = pygame.display.set_mode((MAP_WIDTH*TILE_SIZE, MAP_HEIGHT*TILE_SIZE))
+    pygame.display.set_caption("World Draw Test")
+
     world = World()
-    print(world.seed, " ", world.changes, " ", world.biomeNoise, " ", world.current_chunk_pos, " ", world.current_biome, " ", world.features, " ", world.real_tiles)
+
+    running = True
+    clock = pygame.time.Clock()
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        screen.fill((0, 0, 0))  # Clear screen
+        world.draw(screen)      # Draw the world
+        pygame.display.flip()   # Update display
+        clock.tick(60)          # Limit to 60 FPS
+
+    pygame.quit()
