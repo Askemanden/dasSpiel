@@ -1,6 +1,24 @@
+"""
+                        mm                      mm                                                                         mm           mm                                          
+*@@@@*     @     *@@@*  @@                    *@@@                                   *@@@***@@m                     @@     @@    @@     @@                                          
+  *@@     m@@     m@                            @@                                     @@   *@@m                    @@           @@                                                 
+   @@m   m@@@m   m@   *@@@  *@@@@@@@@m     m@**@@@    m@@*@@m *@@*    m@    *@@*       @@   m@@  m@*@@m  *@@@m@@@ @@@@@@ *@@@  @@@@@@ *@@@    m@@*@@m *@@@@@@@@m    mm@*@@ *@@@m@@@ 
+    @@m  @* @@m  @*     @@    @@    @@   m@@    @@   @@*   *@@  @@   m@@@   m@         @@@@@@@  @@   @@    @@* **   @@     @@    @@     @@   @@*   *@@  @@    @@   m@*   @@  @@* ** 
+    !@@ @*  *@@ @*      !@    @!    @@   @!@    @!   @@     @@   @@ m@  @@ m@          @@        m@@@!@    @!       @@     !@    @@     !@   @@     @@  @!    @@   !@******  @!     
+     !@@m    !@@m       !@    @!    !@   *!@    @!   @@     !@    @@@    @!!           @!       @!   !@    @!       @!     !@    @!     !@   @@     !@  @!    !@   !@m    m  @!     
+     !!@!*   !!@!*      !!    !!    !!   !!!    !!   !@     !!    !@!!   !:!           @!        !!!!:!    !!       !!     !!    !!     !!   !@     !!  !!    !!   !!******  !!     
+     !!!!    !!!!       !!    !!    !!   *:!    !:   !!!   !!!    !!!    !:!           !!       !!   :!    !:       !!     !!    !!     !!   !!!   !!!  !!    !!   :!!       !:     
+      :       :       : : : : :::  :!: :  : : : ! :   : : : :      :      :          :!:!:      :!: : !: : :::      ::: :: : :   ::: :: : :   : : : : : :::  :!: :  : : :: : :::    
+                                                                                                                                                                                    
+"""
+
+
+
+
 import pygame
-from vectors import Vector2f
+from vectors import*
 import enum
+from signals import*
 
 class alignment(enum.Enum):
     horizontal = 0
@@ -112,7 +130,6 @@ def intet():
 
 def quit():
     pygame.quit()
-    quit()
 
 class container_type(enum.Enum):
     item = 0
@@ -140,27 +157,29 @@ class container:
             pygame.draw.rect(screen, self.color, self.rect)
 
 
-
 # Testkode
 if __name__ == ("__main__"):
     pygame.init()
     screen = pygame.display.set_mode((800, 500))
     pygame.display.set_caption("Window Partitioner")
     running = True
-    screen_box = screen_box(200, 200, 300, 300)
+    screen_box = screen_box(200, 200, 300, 300, alignment.horizontal)
 
-    #button1 = container(container_type.button, quit)
-    #screen_box.add_container(button1)
-    #button2 = container(container_type.button, quit)
-    #screen_box.add_container(button2)
+    button1 = container(container_type.button, quit)
+    screen_box.add_container(button1)
+    button2 = container(container_type.button, quit)
+    screen_box.add_container(button2)
+    button3 = container(container_type.button, quit)
+    screen_box.add_container(button3)
 
     #text_box = text_box(400, 250, 300, 200, "Dette er en test")
 
-    popup_menu = popup_menu(400, 250, 300, 200, popup_menu_types.QUIT)
+    #popup_menu = popup_menu(400, 250, 300, 200, popup_menu_types.QUIT)
 
 
     while running:
-        popup_menu.update()
+        #popup_menu.update()
+        screen_box.update()
         
 
         for event in pygame.event.get():                    # Håndterer begivenheder som lukning af vindue og museklik.
@@ -180,7 +199,8 @@ if __name__ == ("__main__"):
             #elif
 
 
-        popup_menu.draw(screen)
+        #popup_menu.draw(screen)
+        screen_box.draw(screen)
         pygame.display.flip()
     pygame.quit()
     quit()
