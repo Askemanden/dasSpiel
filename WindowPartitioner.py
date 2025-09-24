@@ -112,7 +112,6 @@ def intet():
 
 def quit():
     pygame.quit()
-    quit()
 
 class container_type(enum.Enum):
     item = 0
@@ -147,20 +146,23 @@ if __name__ == ("__main__"):
     screen = pygame.display.set_mode((800, 500))
     pygame.display.set_caption("Window Partitioner")
     running = True
-    screen_box = screen_box(200, 200, 300, 300)
+    screen_box = screen_box(200, 200, 300, 300, alignment.horizontal)
 
-    #button1 = container(container_type.button, quit)
-    #screen_box.add_container(button1)
-    #button2 = container(container_type.button, quit)
-    #screen_box.add_container(button2)
+    button1 = container(container_type.button, quit)
+    screen_box.add_container(button1)
+    button2 = container(container_type.button, quit)
+    screen_box.add_container(button2)
+    button3 = container(container_type.button, quit)
+    screen_box.add_container(button3)
 
     #text_box = text_box(400, 250, 300, 200, "Dette er en test")
 
-    popup_menu = popup_menu(400, 250, 300, 200, popup_menu_types.QUIT)
+    #popup_menu = popup_menu(400, 250, 300, 200, popup_menu_types.QUIT)
 
 
     while running:
-        popup_menu.update()
+        #popup_menu.update()
+        screen_box.update()
         
 
         for event in pygame.event.get():                    # Håndterer begivenheder som lukning af vindue og museklik.
@@ -180,7 +182,8 @@ if __name__ == ("__main__"):
             #elif
 
 
-        popup_menu.draw(screen)
+        #popup_menu.draw(screen)
+        screen_box.draw(screen)
         pygame.display.flip()
     pygame.quit()
     quit()
