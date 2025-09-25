@@ -21,6 +21,16 @@ class Vector2:
         dy = self.y - other.y
         return (dx * dx + dy * dy) ** 0.5
     
+    def normalize(self) -> "Vector2f":
+        leng = self.length()
+        x = self.x / leng
+        y = self.y / leng
+        return Vector2f(x,y)
+
+    def direction_to(self, other : "Vector2") -> "Vector2f":
+        direction_vector = other-self
+        return direction_vector.normalize()
+    
     def __add__(self, other : "Vector2") -> "Vector2":
         return Vector2(self.x + other.x, self.y + other.y)
     

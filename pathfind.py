@@ -33,7 +33,7 @@ def astar(
     start: Vector2i,
     goal: Vector2i,
     blocked: set[Vector2i]
-) -> list[Vector2i] | None:
+) -> set[Vector2i] | None:
     """
     A* on an 8-connected grid with diagonal cost sqrt(2).
     Diagonal moves are disallowed if they would "cut a corner":
