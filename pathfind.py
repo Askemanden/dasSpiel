@@ -1,12 +1,37 @@
 import heapq
 import math
 from vectors import Vector2i
+from settings import *
+
+def in_bounds(x: int, y: int) -> bool:
+    return 0 <= x < MAP_WIDTH and 0 <= y < MAP_HEIGHT
+
+def is_blocked(x: int, y: int) -> bool:
+    return (not in_bounds(x, y)) or (Vector2i(x, y) in blocked)
+
+def can_move(current: Vector2i, dx: int, dy: int) -> bool:
+    # Disallow corner cutting for diagonals:
+    # moving from (x,y) to (x+dx,y+dy) requires both (x+dx,y) and (x,y+dy) to be free.
+    if dx != 0 and dy != 0:
+        side_a_x, side_a_y = current.x + dx, current.y
+        side_b_x, side_b_y = current.x, current.y + dy
+        if is_blocked(side_a_x, side_a_y) or is_blocked(side_b_x, side_b_y):
+            return False
+    # Also require destination to be free.
+    nx, ny = current.x + dx, current.y + dy
+    return in_bounds(nx, ny) and (Vector2i(nx, ny) not in blocked)
+
+def move_cost(dx: int, dy: int) -> float:
+    return math.sqrt(2) if dx != 0 and dy != 0 else 1.0
+
+def heuristic(a: Vector2i, b: Vector2i) -> float:
+    # Octile distance (admissible and consistent for 8-connected grids)
+    dx, dy = abs(a.x - b.x), abs(a.y - b.y)
+    return (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
 
 def astar(
     start: Vector2i,
     goal: Vector2i,
-    width: int,
-    height: int,
     blocked: set[Vector2i]
 ) -> list[Vector2i] | None:
     """
@@ -19,32 +44,6 @@ def astar(
         (1, 0), (-1, 0), (0, 1), (0, -1),
         (1, 1), (1, -1), (-1, 1), (-1, -1)
     ]
-
-    def in_bounds(x: int, y: int) -> bool:
-        return 0 <= x < width and 0 <= y < height
-
-    def is_blocked(x: int, y: int) -> bool:
-        return (not in_bounds(x, y)) or (Vector2i(x, y) in blocked)
-
-    def can_move(current: Vector2i, dx: int, dy: int) -> bool:
-        # Disallow corner cutting for diagonals:
-        # moving from (x,y) to (x+dx,y+dy) requires both (x+dx,y) and (x,y+dy) to be free.
-        if dx != 0 and dy != 0:
-            side_a_x, side_a_y = current.x + dx, current.y
-            side_b_x, side_b_y = current.x, current.y + dy
-            if is_blocked(side_a_x, side_a_y) or is_blocked(side_b_x, side_b_y):
-                return False
-        # Also require destination to be free.
-        nx, ny = current.x + dx, current.y + dy
-        return in_bounds(nx, ny) and (Vector2i(nx, ny) not in blocked)
-
-    def move_cost(dx: int, dy: int) -> float:
-        return math.sqrt(2) if dx != 0 and dy != 0 else 1.0
-
-    def heuristic(a: Vector2i, b: Vector2i) -> float:
-        # Octile distance (admissible and consistent for 8-connected grids)
-        dx, dy = abs(a.x - b.x), abs(a.y - b.y)
-        return (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
 
     # Priority queue with a tie-breaker counter to avoid comparing Vector2i
     open_set: list[tuple[float, int, Vector2i]] = []
@@ -83,10 +82,11 @@ def astar(
 
     return None
 
+
 if __name__ == "__main__":
     start = Vector2i(0, 0)
     goal = Vector2i(3, 3)
     blocked = {Vector2i(1, 2), Vector2i(3,2)}
 
-    path = astar(start, goal, 10, 10, blocked)
+    path = astar(start, goal, blocked)
     print("Path:", path)
