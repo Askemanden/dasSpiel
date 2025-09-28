@@ -62,8 +62,12 @@ class screen_box (UI_element):                                       # En boks p
     def add_button(self, container):                                    # Tilføjer en container til listen af beholdere.
         if container in self.components:
             return False
-        if container.layout_info is not None and (container.layout_info.x + container.layout_info.width > self.rect.width or container.layout_info.y + container.layout_info.height > self.rect.height or container.layout_info.x < 0 or container.layout_info.y < 0):
+        if container.layout_info is not None and (container.layout_info.x + container.layout_info.width > self.rect.width or container.layout_info.y + container.layout_info.height > self.rect.height):
             return False                                                # Containeren kan ikke tilføjes, da den ikke kan være i screen_boxen.
+        if container.layout_info is not None:
+            if container.layout_info.x < 0 and container.layout_info.anchor_x != "center" or container.layout_info.y < 0 and container.layout_info.anchor_y != "center": 
+                return False
+        
         self.components.append(container)                               # En container kan være en knap eller en holder til en item.
         self.place_all_components()
         return True
@@ -273,11 +277,11 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode((800, 500))
     pygame.display.set_caption("Window Partitioner")
 
-    screen_box = kasse = screen_box(220, 220, 400, 200)
+    screen_box = kasse = screen_box(400, 150, 400, 200)
 
-    knap1 = button(quit)
+    knap1 = button(intet)
     knap2 = button(quit)
-    knap3 = button(quit, UI_component_placement_info(0, 0, 80, 60, "Askeslaske", "center"))
+    knap3 = button(quit, UI_component_placement_info(0, -30, 80, 30, "center", "center"))
 
     kasse.add_button(knap2)
     kasse.add_button(knap3)
