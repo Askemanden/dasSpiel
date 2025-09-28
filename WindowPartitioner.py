@@ -20,12 +20,31 @@ from vectors import*
 import enum
 from signals import*
 
+running = True
+
 class alignment(enum.Enum):
     horizontal = 0
     vertical = 1
 
-class screen_box:
+class UI_element:                                                       # Basisklasse for alle UI elementer.
+    def __init__(self, x, y):
+        self.screen_position_x = x
+        self.screen_position_y = y
+        self.rect = pygame.Rect(x, y, 10, 10)                           # Basisklasse har en rektangel.
+        self.color = (255, 255, 255)                                    # Basisklasse har en farve.
+
+    def update(self):
+        pass
+
+    def move(self, x : int, y : int):
+        pass
+
+    def draw(self, screen : pygame.Surface):
+        pass
+
+class screen_box (UI_element):                                       # En boks på skærmen der kan indeholde knapper og items.
     def __init__(self, x, y, width, height, button_alignment = alignment.horizontal):
+        super().__init__(x, y)
         self.screen_position_x = x - width * 0.5
         self.screen_position_y = y - height * 0.5
         self.rect = pygame.Rect(self.screen_position_x, self.screen_position_y, width, height)
@@ -35,69 +54,101 @@ class screen_box:
 
         self.color = (120,105,105)
        
-        self.containers = []
+        self.components = []
+        self.number_of_buttons = 0                                      # Antallet af automatisk placerede knapper i listen af containere. Bruges til at arrangere knapperne jævnt.
         self.button_alignment = button_alignment
 
-    def add_container(self, container):                                 # Tilføjer en container til listen af beholdere.
-        self.containers.append(container)                               # En container kan være en knap eller en holder til en item.
-        self.update_container_rects()
+
+    def add_button(self, container):                                    # Tilføjer en container til listen af beholdere.
+        if container in self.components:
+            return False
+        if container.layout_info is not None and (container.layout_info.x + container.layout_info.width > self.rect.width or container.layout_info.y + container.layout_info.height > self.rect.height):
+            return False                                                # Containeren kan ikke tilføjes, da den ikke kan være i screen_boxen.
+        if container.layout_info is not None:
+            if container.layout_info.x < 0 and container.layout_info.anchor_x != "center" or container.layout_info.y < 0 and container.layout_info.anchor_y != "center": 
+                return False
+        
+        self.components.append(container)                               # En container kan være en knap eller en holder til en item.
+        self.place_all_components()
         return True
     
+    def count_buttons(self):                                            # Tæller antallet af automatisk placerede knapper i listen af containere.
+        count = 0
+        for container in self.components:
+            if container.layout_info is None and isinstance(container, button):
+                count += 1
+        self.number_of_buttons = count
+
+    def remove_container(self, container):                              # Fjerner en container fra listen af containere.
+        pass # TODO
+
     def update(self):                                                   # Opdaterer tilstanden af screen_boxen og dens containere.
-        mouse_pos = pygame.mouse.get_pos()                              # update kalder ikke den matematiktunge updtate_container_rects, da den kun behøver at blive kaldt når en container tilføjes eller fjernes, eller kassen flyttes.
+                                                                        # update kalder ikke den matematiktunge place_all_buttons, da den kun behøver at blive kaldt når en container tilføjes eller fjernes, eller kassen flyttes.
+        for container in self.components:
+           container.update()
 
-        for container in self.containers:
-            if container.rect.collidepoint(mouse_pos):
-                container.is_hovered = True
+    def place_component(self, component, automatic_button_index):       # sætter x og y positionen for en knap baseret på dens placering KUN i forhold til andre af dens type.
+                                                                        # Bredden og højden beregnes af screen_boxen, da dette er lettere.
+        if component.layout_info is not None:                           # Component er en knap med manuel layout info.
+
+            if component.layout_info.anchor_x == "center":
+                component.rect.x = self.rect.x + (self.rect.width - component.layout_info.width) * 0.5 + component.layout_info.x
             else:
-                container.is_hovered = False
+                component.rect.x = self.rect.x + component.layout_info.x
 
-    def update_container_rects(self):
+            if component.layout_info.anchor_y == "center":
+                component.rect.y = self.rect.y + (self.rect.height - component.layout_info.height) * 0.5 + component.layout_info.y
+            else:
+                component.rect.y = self.rect.y + component.layout_info.y
 
-        for container in self.containers:
-            length = len(self.containers)
+        else:   # Component er en automatisk placeret knap.
+            button_height = component.rect.height
+            button_width = component.rect.width
 
             if self.button_alignment == alignment.horizontal:
-               if container.container_type == container_type.button:
-                index = self.containers.index(container)
+                component.rect.x = self.rect.x + self.border_width + automatic_button_index * (button_width + self.border_width)
+                component.rect.y = self.rect.y + self.rect.height - self.border_width - button_height
 
-                container.rect.width = (self.rect.width - (length + 3) * self.border_width)/ length
-                container.rect.height = 40  # Arbitrær værdi for knap højde.
+            else:
+                pass    # TODO: Implementer vertikal placering af knapper.
+    
+    def place_all_components(self):
+        self.count_buttons()
+        automatic_button_index = 0
+
+        for container in self.components:
+
+            if isinstance(container, button) and container.layout_info is None:   # Automatisk placeret knap.
+                container.rect.width = (self.rect.width - self.border_width * (self.number_of_buttons + 1)) / self.number_of_buttons
+                container.rect.height = 40 # Standard højde for knapper. TODO: Gør dette dynamisk baseret på screen_boxens højde.
+                automatic_button_index += 1
+            else:
+                container.rect.width = container.layout_info.width
+                container.rect.height = container.layout_info.height
+
+            self.place_component(container, automatic_button_index - 1)  # -1 fordi indexet er blevet forøget efter placeringen af knappen.
                 
-                container.rect.x = self.rect.x + self.border_width * 2 + index * (container.rect.width + self.border_width)
-                container.rect.y = self.rect.y + self.rect.height - self.border_width * 2 - container.rect.height
-
-            elif self.button_alignment == alignment.vertical:
-                if container.container_type == container_type.button:
-                    index = self.containers.index(container)
-
-                    container.rect.width = self.rect.width * 0.5 - self.border_width * 2
-                    container.rect.height = 40  # Arbitrær værdi for knap højde.
-                    
-                    container.rect.x = self.rect.x + self.border_width
-                    container.rect.y = self.rect.y + self.rect.height - self.border_width * 2 - (length - index) * (container.rect.height + self.border_width)
-            
     def move(self, x, y):
         self.screen_position_x = x - self.rect.width * 0.5
         self.screen_position_y = y - self.rect.height * 0.5
         self.rect.topleft = (self.screen_position_x, self.screen_position_y)
-        self.update_container_rects()
+        self.place_all_components()
 
 
     def draw(self, screen):
         # Tegner en boks med en kant. Kanten er border_width pixels bred.
-        pygame.draw.rect(screen, self.border_color, self.rect)
-        middle_rect = pygame.Rect(self.rect.left + self.border_width, self.rect.top + self.border_width, self.rect.width - self.border_width * 2, self.rect.height - self.border_width * 2)
-        pygame.draw.rect(screen, self.color, middle_rect)
+        border_rect = pygame.Rect(self.rect.left - self.border_width, self.rect.top - self.border_width, self.rect.width + self.border_width * 2, self.rect.height + self.border_width * 2)
+        pygame.draw.rect(screen, self.border_color, border_rect)
+        pygame.draw.rect(screen, self.color, self.rect)
 
-        # Tegner alle containere i boksen.
-        # For nu arrangeres alle containere, der er knapper, vandret i bunden af boksen. Lidt ligesom Windows pop-up menuer.
-        # Alle andre containere arrangeres lodret i toppen af boksen, og der kan scrolles gennem dem.
-        self.update()
-        for container in self.containers:
+        # Tegner alle UI-komponenter i boksen.
+        # For nu arrangeres alle knapper, vandret i bunden af boksen. Lidt ligesom Windows pop-up menuer.
+        # Alle andre UI-komponenter arrangeres lodret i toppen af boksen, og der kan scrolles gennem dem.
+        for container in self.components:
             container.draw(screen)
 
-
+#TODO: reimplementer popup_menu
+""" 
 class popup_menu_types(enum.Enum):
     OK_CANCEL = 0
     YES_NO = 1
@@ -120,34 +171,55 @@ class popup_menu(screen_box):
             quit_button = container(container_type.button, quit)
             quit_button.color = (220, 20, 60)  # Rød farve for quit knappen.
             self.add_container(quit_button)
-            
-
-
-
+"""
 
 def intet():
     pass
 
 def quit():
-    pygame.quit()
+    global running
+    running = False
 
-class container_type(enum.Enum):
-    item = 0
-    button = 1
+class UI_component:                                         # Basisklasse for alle UI komponenter til et UI_element.
+    def __init__(self):
+        pass
+    
+    def update(self):
+        pass
 
-class container:
-    def __init__(self, type, function = intet):
+    def draw(self, screen):
+        pass
+
+class UI_component_placement_info():
+    def __init__(self, x, y, width, height, anchor_x = "left", anchor_y = "top"):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+
+        self.anchor_x = anchor_x
+        self.anchor_y = anchor_y
+
+
+class button(UI_component):
+    def __init__(self, function = intet, layout_info : UI_component_placement_info = None):
         self.on_click = function
-        self.container_type = type
+
+        self.color = (100, 149, 237)                        # Knapper er blå.
+
         self.is_hovered = False
 
-        if self.container_type == container_type.button:    # Knapper er blå.
-            self.color = (100, 149, 237)
-        else:
-            self.color = (70, 130, 180)                     # Items er mørkeblå.
+        self.layout_info = layout_info
 
         self.rect = pygame.Rect(0, 0, 10, 10)               # Burde ikke blive ændret af andre end screen_box
                                                             # således at alle knapper i en screen_box kan blive jævnt fordelt, og ens størrelse.
+
+    def update(self):
+        pygame.mouse.get_pos()
+        if self.rect.collidepoint(pygame.mouse.get_pos()):
+            self.is_hovered = True
+        else:
+            self.is_hovered = False
 
     def draw(self, screen):
         if self.is_hovered:
@@ -156,30 +228,69 @@ class container:
         else:
             pygame.draw.rect(screen, self.color, self.rect)
 
+class text(UI_component):
+    def __init__(self, text = "Tekst",font_size = 30):
+        super().__init__()
 
-# Testkode
-if __name__ == ("__main__"):
+        self.x = 0
+        self.y = 0
+        self.width = 10
+        self.height = 10    # Disse værdier sættes af screen_boxen når den tilføjes.
+
+        self.text = text
+        self.font_size = font_size
+        self.font = pygame.font.SysFont('Arial', self.font_size)
+        self.color = (255, 255, 255)                    # Tekst er hvid.
+        self.text_color = (0, 0, 0)                     # Tekst farve er sort.
+        self.padding = 10
+
+        self.image = self.font.render(self.text, True, self.color)
+        self.rect = self.image.get_rect()
+
+        self.on_click = intet
+
+    def set_text(self, new_text):
+        self.text = new_text
+
+    def set_background_color(self, new_color):
+        self.color = new_color
+    
+    def set_text_color(self, new_color):
+        self.text_color = new_color
+    
+    
+    def update(self):
+        pass
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, self.color, self.rect)
+        text_surface = self.font.render(self.text, True, self.text_color)
+        screen.blit(text_surface, (self.rect.x + self.padding, self.rect.y + self.padding))
+        
+
+
+# Testkode, der nok ender med at blive main loop :O
+if __name__ == "__main__":
     pygame.init()
+    pygame.font.init()
+
     screen = pygame.display.set_mode((800, 500))
     pygame.display.set_caption("Window Partitioner")
-    running = True
-    screen_box = screen_box(200, 200, 300, 300, alignment.horizontal)
 
-    button1 = container(container_type.button, quit)
-    screen_box.add_container(button1)
-    button2 = container(container_type.button, quit)
-    screen_box.add_container(button2)
-    button3 = container(container_type.button, quit)
-    screen_box.add_container(button3)
+    screen_box = kasse = screen_box(400, 150, 400, 200)
 
-    #text_box = text_box(400, 250, 300, 200, "Dette er en test")
+    knap1 = button(intet)
+    knap2 = button(quit)
+    knap3 = button(quit, UI_component_placement_info(0, -30, 80, 30, "center", "center"))
 
-    #popup_menu = popup_menu(400, 250, 300, 200, popup_menu_types.QUIT)
+    kasse.add_button(knap2)
+    kasse.add_button(knap3)
+    kasse.add_button(knap1)
 
 
     while running:
         #popup_menu.update()
-        screen_box.update()
+        kasse.update()
         
 
         for event in pygame.event.get():                    # Håndterer begivenheder som lukning af vindue og museklik.
@@ -190,17 +301,12 @@ if __name__ == ("__main__"):
             elif event.type == pygame.MOUSEBUTTONDOWN:      # Håndterer museklik.
                 mouse_pos = event.pos
                 
-                for container in popup_menu.containers:
+                for container in kasse.components:
 
                     if container.rect.collidepoint(mouse_pos):
                         container.on_click()
-                    
-            
-            #elif
-
-
-        #popup_menu.draw(screen)
-        screen_box.draw(screen)
+        kasse.draw(screen)
+        #screen_box.draw(screen)
         pygame.display.flip()
     pygame.quit()
     quit()
