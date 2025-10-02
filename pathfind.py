@@ -40,10 +40,16 @@ def astar(
     i.e., if either of the two orthogonal tiles along the diagonal is blocked.
     """
 
+
+
     directions: list[tuple[int, int]] = [
         (1, 0), (-1, 0), (0, 1), (0, -1),
         (1, 1), (1, -1), (-1, 1), (-1, -1)
     ]
+
+    if goal in blocked:
+        return None
+
 
     # Priority queue with a tie-breaker counter to avoid comparing Vector2i
     open_set: list[tuple[float, int, Vector2i]] = []

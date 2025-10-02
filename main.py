@@ -6,6 +6,8 @@ from tile import Tile
 import pygame
 from random import randint
 
+LEFT = 1
+RIGHT = 3
 
 def main():
 
@@ -14,18 +16,16 @@ def main():
     screen = pygame.display.set_mode((MAP_WIDTH*TILE_SIZE, MAP_HEIGHT*TILE_SIZE))
     pygame.display.set_caption("World Draw Test")
 
+    world = World()
+    player = Player(health=10, speed = 0.15)
+
     # SIGNALS
     leftClick : Signal = Signal()
+    rightClick : Signal = Signal()
 
+    # CONNECT SIGNALS
+    leftClick.connect("move player", player.newTarget)
 
-    world = World()
-    real_tiles : list[Tile] = world.real_tiles.values()
-    blocked = []
-    for tile in real_tiles:
-        if not tile.passable:
-            blocked.append(tile.position)
-    player = Player(health=10, speed = 0.15)
-    player.set_path(astar(player.grid_position,Vector2i(0,0),blocked),Vector2f(20,10))
     running = True
     clock = pygame.time.Clock()
     dt = 0
@@ -48,6 +48,14 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == LEFT:
+                    print("pos ", event.pos)
+                    leftClick.emit([event.pos, world])
+                elif event.button == RIGHT:
+                    rightClick.emit([event.pos, world])
+
 
         player.update(dt)
 
@@ -56,11 +64,6 @@ def main():
         player.draw(screen)
         pygame.display.flip()   # Update display
         dt = clock.tick(60)          # Limit to 60 FPS
-        i+=1
-        if(i==50):
-            i = 0
-            player.set_path(astar(player.grid_position,Vector2i(randint(0,MAP_WIDTH),randint(0,MAP_HEIGHT)),blocked),Vector2f(randint(0,TILE_SIZE),randint(0,TILE_SIZE)))
-
 
     pygame.quit()
 
