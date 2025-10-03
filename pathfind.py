@@ -6,16 +6,16 @@ from settings import *
 def in_bounds(x: int, y: int) -> bool:
     return 0 <= x < MAP_WIDTH and 0 <= y < MAP_HEIGHT
 
-def is_blocked(x: int, y: int) -> bool:
+def is_blocked(x: int, y: int, blocked) -> bool:
     return (not in_bounds(x, y)) or (Vector2i(x, y) in blocked)
 
-def can_move(current: Vector2i, dx: int, dy: int) -> bool:
+def can_move(current: Vector2i, dx: int, dy: int, blocked) -> bool:
     # Disallow corner cutting for diagonals:
     # moving from (x,y) to (x+dx,y+dy) requires both (x+dx,y) and (x,y+dy) to be free.
     if dx != 0 and dy != 0:
         side_a_x, side_a_y = current.x + dx, current.y
         side_b_x, side_b_y = current.x, current.y + dy
-        if is_blocked(side_a_x, side_a_y) or is_blocked(side_b_x, side_b_y):
+        if is_blocked(side_a_x, side_a_y, blocked) or is_blocked(side_b_x, side_b_y,blocked):
             return False
     # Also require destination to be free.
     nx, ny = current.x + dx, current.y + dy
@@ -45,6 +45,10 @@ def astar(
         (1, 1), (1, -1), (-1, 1), (-1, -1)
     ]
 
+    if goal in blocked:
+        return None
+
+
     # Priority queue with a tie-breaker counter to avoid comparing Vector2i
     open_set: list[tuple[float, int, Vector2i]] = []
     counter: int = 0
@@ -66,7 +70,7 @@ def astar(
             return path[::-1]
 
         for dx, dy in directions:
-            if not can_move(current, dx, dy):
+            if not can_move(current, dx, dy,blocked):
                 continue
 
             nx, ny = current.x + dx, current.y + dy

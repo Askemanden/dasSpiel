@@ -9,9 +9,6 @@ class Vector2:
     def change_values(self, x, y):
         self.x = x
         self.y = y
-
-    def change_values(self, other : "Vector2") -> None:
-        self.change_values(other.x, other.y)
     
     def length(self) -> float:
         return math.sqrt(self.x**2+self.y**2)
@@ -23,6 +20,8 @@ class Vector2:
     
     def normalize(self) -> "Vector2f":
         leng = self.length()
+        if leng == 0:
+            return Vector2f(0,0)
         x = self.x / leng
         y = self.y / leng
         return Vector2f(x,y)
