@@ -17,14 +17,19 @@ def main():
     pygame.display.set_caption("World Draw Test")
 
     world = World()
-    player = Player(health=10, speed = 0.15)
+    player = Player(health=10)
 
     # SIGNALS
     leftClick : Signal = Signal()
     rightClick : Signal = Signal()
 
     # CONNECT SIGNALS IN ORDER OF CONSUMPTION (CONNECTIONS THAT SHOULD CONSUME SHOULD BE PLACED FIRST)
+
+    # LEFT CLICK CONNECTIONS
     leftClick.connect("move player", player.newTarget)
+
+    # RIGHT CLICK CONNECTIONS
+    rightClick.connect("interact", player.interact)
 
     running = True
     clock = pygame.time.Clock()
@@ -62,7 +67,7 @@ def main():
         world.draw(screen)      # Draw the world
         player.draw(screen)
         pygame.display.flip()   # Update display
-        dt = clock.tick(60)          # Limit to 60 FPS
+        dt = clock.tick(60)     # Limit to 60 FPS
 
     pygame.quit()
 

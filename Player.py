@@ -17,10 +17,11 @@ from vectors import*
 from pathfind import astar
 from world import World
 from tile import Tile
+from inventory import *
 import pygame
 
 class Player:
-    def __init__(self, health: int, speed: float = 0.05,
+    def __init__(self, health: int, speed: float = 0.15,
                  grid_position: Vector2i = Vector2i(int(MAP_WIDTH/2), int(MAP_HEIGHT/2)),
                  color=(0,0,0)):
         self.grid_position: Vector2i = grid_position
@@ -28,9 +29,10 @@ class Player:
         self.health = health
         self.speed = speed
         self.color = color
-        self.path: list[Vector2i] = []
         self.final_world_position: Vector2f = self.world_position
         self.subtargets: list[Vector2f] = []   # expanded path in world coords
+
+        self.inventory : Inventory = Inventory()
 
     def draw(self, screen : pygame.Surface):
         pygame.draw.circle(screen,self.color,(self.world_position.x,self.world_position.y),int(TILE_SIZE/2))
@@ -106,3 +108,10 @@ class Player:
             self.subtargets.pop(0)
             if len(self.path) > 0 and self.world_position == (self.path[0]*TILE_SIZE + Vector2f(TILE_SIZE/2, TILE_SIZE/2)):
                 self.grid_position = self.path.pop(0)
+    
+    def interact(self, params : list[list[int,int],World]):
+        
+        
+
+        # Does not consume an event
+        return False
