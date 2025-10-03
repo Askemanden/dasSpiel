@@ -72,7 +72,6 @@ class Player:
         return Vector2f(ax + dx * TILE_SIZE/2, ay + dy * TILE_SIZE/2)
 
     def newTarget(self, params : list[list[int,int],World]):
-        print("AAA")
         worldTargetList = params[0]
         worldTarget = Vector2f(worldTargetList[0],worldTargetList[1])
         target: Vector2i = Vector2i(int(worldTarget.x // TILE_SIZE), int(worldTarget.y // TILE_SIZE))
@@ -85,10 +84,11 @@ class Player:
                 blocked.append(tile.position)
 
         path = astar(self.grid_position,target,blocked)
-        print(params)
-        print(self.grid_position)
-        print(target)
+
         self.set_path(path,worldTarget)
+
+        # Did not consume the event
+        return False
 
     def update(self, dt: float):
         if not self.subtargets:

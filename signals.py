@@ -2,17 +2,22 @@ from collections.abc import Callable
 
 class Signal:
     def __init__(self):
-        self.connections : dict[str, Callable[[list], None]] = {}
+        self.connections : list[list[str, Callable[[list], bool]]] = []
 
-    def connect(self, name : str, func : Callable[[list], None]):
-        self.connections[name] = func
+    def connect(self, name : str, func : Callable[[list], bool]):
+        self.connections.append([name,func])
 
     def remove(self, name : str):
-        self.connections.pop(name, 1)
+        for i in self.connections:
+            if i[0] == name:
+                self.connections.remove(i)
+                break
     
     def emit(self, params : list):
-        for key in self.connections.keys():
-            self.connections[key](params)
+        for connection in self.connections:
+            consumed = connection[1](params)
+            if(consumed):
+                break
 
 if __name__ == "__main__":
     signal1 = Signal()

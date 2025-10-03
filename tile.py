@@ -56,6 +56,9 @@ class Tile:
     
     def draw(self, surface : pygame.Surface):
         surface.blit(self.texture,(self.position.x*TILE_SIZE, self.position.y*TILE_SIZE))
+    
+    def interacted(self):
+        pass
 
 class Stone(Tile):
     def __init__(self, x, y, biome : BiomeTypes):

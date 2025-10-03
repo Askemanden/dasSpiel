@@ -23,7 +23,7 @@ def main():
     leftClick : Signal = Signal()
     rightClick : Signal = Signal()
 
-    # CONNECT SIGNALS
+    # CONNECT SIGNALS IN ORDER OF CONSUMPTION (CONNECTIONS THAT SHOULD CONSUME SHOULD BE PLACED FIRST)
     leftClick.connect("move player", player.newTarget)
 
     running = True
@@ -51,7 +51,6 @@ def main():
             
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == LEFT:
-                    print("pos ", event.pos)
                     leftClick.emit([event.pos, world])
                 elif event.button == RIGHT:
                     rightClick.emit([event.pos, world])
