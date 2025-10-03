@@ -101,16 +101,21 @@ class screen_box (UI_element):                                       # En boks p
             else:
                 component.rect.y = self.rect.y + component.layout_info.y
 
-        else:   # Component er en automatisk placeret knap.
-            button_height = component.rect.height
-            button_width = component.rect.width
+        else:
+            if isinstance(component, button):
+                button_height = component.rect.height
+                button_width = component.rect.width
+                if self.button_alignment == alignment.horizontal:
+                    component.rect.x = self.rect.x + self.border_width + automatic_button_index * (button_width + self.border_width)
+                    component.rect.y = self.rect.y + self.rect.height - self.border_width - button_height
 
-            if self.button_alignment == alignment.horizontal:
-                component.rect.x = self.rect.x + self.border_width + automatic_button_index * (button_width + self.border_width)
-                component.rect.y = self.rect.y + self.rect.height - self.border_width - button_height
-
-            else:
-                pass    # TODO: Implementer vertikal placering af knapper.
+                else:
+                    pass    # TODO: Implementer vertikal placering af knapper.
+            elif isinstance(component, label):
+                component.rect.x = self.rect.x + self.border_width
+                component.rect.y = self.rect.y + self.border_width
+                component.rect.width = self.rect.width - self.border_width * 2
+                component.rect.height = self.rect.height - (self.border_width * 2 + 40 * 1.2) # 40 er standarden for knaphøjde. TODO: Gør dette dynamisk baseret på screen_boxens højde.
     
     def place_all_components(self):
         self.count_buttons()
@@ -118,10 +123,11 @@ class screen_box (UI_element):                                       # En boks p
 
         for container in self.components:
 
-            if isinstance(container, button) and container.layout_info is None:   # Automatisk placeret knap.
-                container.rect.width = (self.rect.width - self.border_width * (self.number_of_buttons + 1)) / self.number_of_buttons
-                container.rect.height = 40 # Standard højde for knapper. TODO: Gør dette dynamisk baseret på screen_boxens højde.
-                automatic_button_index += 1
+            if container.layout_info is None:
+                if isinstance(container, button):   # Automatisk placeret knap.
+                    container.rect.width = (self.rect.width - self.border_width * (self.number_of_buttons + 1)) / self.number_of_buttons
+                    container.rect.height = 40 # Standard højde for knapper. TODO: Gør dette dynamisk baseret på screen_boxens højde.
+                    automatic_button_index += 1
             else:
                 container.rect.width = container.layout_info.width
                 container.rect.height = container.layout_info.height
@@ -200,6 +206,32 @@ class UI_component_placement_info():
         self.anchor_x = anchor_x
         self.anchor_y = anchor_y
 
+class UI_component_label():
+    def __init__(self, text = "Hej verden"):
+        self.text = text
+
+class UI_component_color_info():
+    def __init__(self, primary_color = (100, 149, 237), secondary_color = (0, 70, 148), accent_color = (227, 209, 120)):
+        self.primary_color = primary_color
+        self.secondary_color = secondary_color
+        self.accent_color = accent_color
+        self.complementary_color = (255 - primary_color[0], 255 - primary_color[1], 255 - primary_color[2])
+
+class UI_button_extension():
+    def __init__(self, component, function = intet):
+        self.function = function
+        if self.component.color_info != None:   # Har UI-komponenten ikke noget color_info, er den gennemsigtig
+            self.lighter_color = (min(self.component.color[0] + 40, 255), min(self.component.color[1] + 40, 255), min(self.component.color[2] + 40, 255))
+
+        self.hovered = False
+        self.component = component
+
+    def update(self):
+        if self.component.rect.collidepoint(pygame.mouse.get_pos()):   
+            self.hovered = True
+        else:
+            self.hovered = False
+
 
 class button(UI_component):
     def __init__(self, function = intet, layout_info : UI_component_placement_info = None):
@@ -228,23 +260,21 @@ class button(UI_component):
         else:
             pygame.draw.rect(screen, self.color, self.rect)
 
-class text(UI_component):
-    def __init__(self, text = "Tekst",font_size = 30):
+
+class label(UI_component):
+    def __init__(self, text = "Tekst", font_size = 30, layout_info : UI_component_placement_info = None):
         super().__init__()
 
-        self.x = 0
-        self.y = 0
-        self.width = 10
-        self.height = 10    # Disse værdier sættes af screen_boxen når den tilføjes.
+        self.layout_info = layout_info
 
         self.text = text
         self.font_size = font_size
         self.font = pygame.font.SysFont('Arial', self.font_size)
-        self.color = (255, 255, 255)                    # Tekst er hvid.
+        self.background_color = (255, 255, 255)                    # Baggrunden til tekst er hvid. Som standard bliver baggrunden ikke tegnet.
         self.text_color = (0, 0, 0)                     # Tekst farve er sort.
         self.padding = 10
 
-        self.image = self.font.render(self.text, True, self.color)
+        self.image = self.font.render(self.text, True, self.text_color)
         self.rect = self.image.get_rect()
 
         self.on_click = intet
@@ -252,10 +282,10 @@ class text(UI_component):
     def set_text(self, new_text):
         self.text = new_text
 
-    def set_background_color(self, new_color):
-        self.color = new_color
+    def background_color(self, new_color):
+        self.background_color = new_color
     
-    def set_text_color(self, new_color):
+    def text_color(self, new_color):
         self.text_color = new_color
     
     
@@ -263,8 +293,8 @@ class text(UI_component):
         pass
 
     def draw(self, screen):
-        pygame.draw.rect(screen, self.color, self.rect)
-        text_surface = self.font.render(self.text, True, self.text_color)
+        #pygame.draw.rect(screen, self.background_color, self.rect)
+        text_surface = self.font.render(self.text, True, self.text_color, None)
         screen.blit(text_surface, (self.rect.x + self.padding, self.rect.y + self.padding))
         
 
@@ -279,9 +309,11 @@ if __name__ == "__main__":
 
     screen_box = kasse = screen_box(400, 150, 400, 200)
 
+    label1 = label("Dette er en test af Window Partitioner", 24)
+    kasse.add_button(label1)
     knap1 = button(intet)
     knap2 = button(quit)
-    knap3 = button(quit, UI_component_placement_info(0, -30, 80, 30, "center", "center"))
+    knap3 = button(quit, UI_component_placement_info(0, -10, 80, 30, "center", "center"))
 
     kasse.add_button(knap2)
     kasse.add_button(knap3)
