@@ -110,8 +110,17 @@ class Player:
                 self.grid_position = self.path.pop(0)
     
     def interact(self, params : list[list[int,int],World]):
-        
-        
+        interact_position : Vector2i= Vector2i(params[0][0],params[0][0])
+        world : World = params[1]
+
+        grid_interact_position = Vector2i(int(interact_position.x // TILE_SIZE), int(interact_position.y // TILE_SIZE))
+
+        tile = world.real_tiles.get(grid_interact_position)
+
+        if tile == None:
+            return False
+
+        tile.interacted(self.inventory.equipped)
 
         # Does not consume an event
-        return False
+        return True

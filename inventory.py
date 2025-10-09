@@ -24,4 +24,9 @@ class Inventory:
         self.items : list[Item] = []
         self.equipped : Item = Hand(EQUIPPED_INVENTORY_POSITION)
         self.opened : bool = False
+    
+    def addItem(self, item : Item):
+        if item == None:
+            return
+        self.items.append(item)
 

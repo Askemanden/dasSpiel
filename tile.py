@@ -4,6 +4,7 @@ import pygame
 from settings import *
 from biome import BiomeTypes
 import numpy as np
+from inventory import Item, MINING_TYPE, Inventory
 
 
 BIOME_COLOR_MODULATIONS = {
@@ -45,11 +46,13 @@ def modulate_texture(base_texture: pygame.Surface, biome: BiomeTypes) -> pygame.
 
 
 class Tile:
-    def __init__(self, x : int, y : int, passable : bool, texture : pygame.Surface):
+    def __init__(self, x : int, y : int, passable : bool, mining_type : MINING_TYPE, texture : pygame.Surface, loot : Item | None = None):
         self.position : Vector2i = Vector2i(x,y)
         self.passable : bool = passable
         self.texture : pygame.Surface = texture
         self.on_interact : Signal = Signal()
+        self.mining_type : MINING_TYPE = mining_type
+        self.loot : Item = loot
     
     def __str__(self):
         return f"pos {self.position}, passable {self.passable}"
@@ -57,21 +60,24 @@ class Tile:
     def draw(self, surface : pygame.Surface):
         surface.blit(self.texture,(self.position.x*TILE_SIZE, self.position.y*TILE_SIZE))
     
-    def interacted(self):
-        pass
+    def interacted(self, interacter : Item, inventory : Inventory):
+        if self.mining_type in interacter.miningTypes:
+            inventory.addItem(self.loot)
+
+            
 
 class Stone(Tile):
     def __init__(self, x, y, biome : BiomeTypes):
         texture = modulate_texture(STONE_TEXTURE, biome)
-        super().__init__(x,y,False,texture)
+        super().__init__(x,y,False, MINING_TYPE.STONE ,texture)
 
 class Wood(Tile):
     def __init__(self, x, y, biome : BiomeTypes):
         texture = modulate_texture(WOOD_TEXTURE, biome)
-        super().__init__(x,y,False,texture)
+        super().__init__(x,y,False, MINING_TYPE.WOOD,texture)
 
 class Bush(Tile):
     def __init__(self, x, y, biome : BiomeTypes):
         texture = modulate_texture(BUSH_TEXTURE, biome)
-        super().__init__(x,y,True,texture)
+        super().__init__(x,y,True, MINING_TYPE.BUSH,texture)
 
