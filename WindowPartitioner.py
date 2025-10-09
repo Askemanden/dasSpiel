@@ -94,7 +94,8 @@ class UI_component_color_info(UI_info):
         self.primary_color = primary_color
         self.secondary_color = secondary_color
         self.accent_color = accent_color
-        self.complementary_color = (255 - primary_color[0], 255 - primary_color[1], 255 - primary_color[2])
+        self.primary_complementary_color = (255 - primary_color[0], 255 - primary_color[1], 255 - primary_color[2])
+        self.secondary_complementary_color = (255 - secondary_color[0], 255 - secondary_color[1], 255 - secondary_color[2])
 
 
 
@@ -120,9 +121,9 @@ class UI_component_text(UI_info):
 
     def get_text_color(self):
         if isinstance(self.component.color_info, UI_component_color_info):
-            return self.component.color_info.complementary_color
+            return self.component.color_info.secondary_complementary_color
         else:
-            return self.component.parent_box.color_info.complementary_color
+            return self.component.parent_box.color_info.secondary_complementary_color
 
     def update(self):
         if self.component.hovered:
@@ -139,14 +140,6 @@ class UI_button_extension(UI_info):
     def __init__(self, component, function = intet):
         self.function = function
         self.component = component
-        color_source = None
-        if isinstance(self.component.color_info, UI_component_color_info):
-            color_source = self.component.color_info
-        else:
-            color_source = self.component.parent_box.color_info
-        
-        self.lighter_color = (min(color_source.secondary_color[0] + 40, 255), min(color_source.secondary_color[1] + 40, 255), min(color_source.secondary_color[2] + 40, 255))
-
 
     def event_handling(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -291,6 +284,13 @@ class screen_box (UI_element):                                       # En boks p
             if not isinstance(container.placement_info, UI_component_placement_info) and isinstance(container.button, UI_button_extension):
                 count += 1
         self.number_of_buttons = count
+
+    def rainbow(self):
+        temporary_colors : UI_component_color_info = self.color_info
+        temporary_colors.primary_color = self.color_info.accent_color
+        temporary_colors.accent_color = self.color_info.primary_color
+        self.color_info = temporary_colors
+        self.update()
 
     def remove_container(self, container):                              # Fjerner en container fra listen af containere.
         pass # TODO
@@ -456,8 +456,7 @@ if __name__ == "__main__":
 
     kasse.create_UIcomponent(UI_info(), UI_info(), "Askeslaske", True, quit)
     kasse.create_UIcomponent(UI_info(), UI_info(), "Akselslakel", True, quit)
-
-
+    kasse.create_UIcomponent(UI_component_color_info(), UI_component_placement_info(0, 0, 80, 40, "center", "center"), "Yippe", True, quit)
 
 
     while running:
@@ -470,6 +469,8 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT:
                 running = False
             
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
+                kasse.move(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
             else:
                 kasse.event_handler(event)
 
