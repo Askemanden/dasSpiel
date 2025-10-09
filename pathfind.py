@@ -3,7 +3,6 @@ import math
 from vectors import Vector2i
 from settings import *
 
-last_direction : Vector2i = Vector2i(0,0)
 
 def in_bounds(x: int, y: int) -> bool:
     return 0 <= x < MAP_WIDTH and 0 <= y < MAP_HEIGHT
@@ -30,8 +29,6 @@ def heuristic(a: Vector2i, b: Vector2i) -> float:
     # Octile distance (admissible and consistent for 8-connected grids)
     dx, dy = abs(a.x - b.x), abs(a.y - b.y)
     heur = (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
-    if dx == last_direction.x and dy == last_direction.y:
-        heur += 1
     return heur
 
 def astar(
@@ -91,7 +88,6 @@ def astar(
                 heapq.heappush(open_set, (f_score, counter, neighbor))
                 counter += 1
                 came_from[neighbor] = current
-                last_direction = neighbor - current
 
     return None
 
