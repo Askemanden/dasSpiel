@@ -16,7 +16,7 @@
 
 
 import pygame
-from vectors import*
+import json
 import enum
 from signals import*
 
@@ -50,6 +50,9 @@ class popup_menu(screen_box):
 """
 
 def intet():
+    pass
+
+def start():
     pass
 
 def quit():
@@ -253,12 +256,12 @@ class screen_box (UI_element):                                       # En boks p
         self.components = []
         self.number_of_buttons = 0                                      # Antallet af automatisk placerede knapper i listen af containere. Bruges til at arrangere knapperne jævnt.
 
-    def create_UIcomponent(self, color : UI_component_color_info = UI_info(), placement_info : UI_component_placement_info = UI_info(), text = "", button : bool = False, function = intet):
+    def create_UIcomponent(self, color : UI_component_color_info = UI_info(), placement_info : UI_component_placement_info = UI_info(), text = "", function = None):
         component = UI_component(placement_info, color)
         component.parent_box = self
         text_object = UI_component_text(component, text)
         component.text = text_object
-        if button:
+        if function != None:
             button_object = UI_button_extension(component, function)
             component.button = button_object
 
@@ -438,30 +441,136 @@ class label(UI_component):
         #pygame.draw.rect(screen, self.background_color, self.rect)
         text_surface = self.font.render(self.text, True, self.text_color, None)
         screen.blit(text_surface, (self.rect.x + self.padding, self.rect.y + self.padding))
+
+"""
+░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+░░░░░░   ░░░░      ░░░░░░░     ░░░░░░    ░░░░░   ░░░░░░░   ░░░░░░░   ░░░░░░░  ░░░░░░░░░░░     ░░░░░   
+▒▒▒▒▒▒   ▒▒   ▒▒▒▒   ▒▒▒   ▒▒▒▒   ▒▒▒  ▒   ▒▒▒   ▒▒▒▒▒▒▒  ▒   ▒▒▒    ▒▒▒▒▒▒  ▒  ▒▒▒▒▒▒▒  ▒▒▒▒   ▒▒▒   
+▒▒▒▒▒▒   ▒▒▒   ▒▒▒▒▒▒▒   ▒▒▒▒▒▒▒▒   ▒   ▒   ▒▒   ▒▒▒▒▒▒▒   ▒   ▒ ▒   ▒▒▒▒▒  ▒▒   ▒▒▒▒▒  ▒▒▒▒▒▒▒▒▒▒▒   
+▓▓▓▓▓▓   ▓▓▓▓▓   ▓▓▓▓▓   ▓▓▓▓▓▓▓▓   ▓   ▓▓   ▓   ▓▓▓▓▓▓▓   ▓▓   ▓▓   ▓▓▓▓   ▓▓▓   ▓▓▓▓   ▓▓▓▓▓▓▓▓▓▓   
+▓▓▓▓▓▓   ▓▓▓▓▓▓▓▓   ▓▓   ▓▓▓▓▓▓▓▓   ▓   ▓▓▓  ▓   ▓▓▓▓▓▓▓   ▓▓▓  ▓▓   ▓▓▓       ▓   ▓▓▓   ▓▓▓      ▓   
+▓  ▓▓▓   ▓▓   ▓▓▓▓   ▓▓▓   ▓▓▓▓▓   ▓▓   ▓▓▓▓  ▓  ▓▓▓▓▓▓▓   ▓▓▓▓▓▓▓   ▓▓   ▓▓▓▓▓▓▓   ▓▓▓   ▓▓▓▓  ▓▓▓   
+██     ██████      ███████     ██████   ██████   ███████   ███████   █   █████████   ███      █████   
+██████████████████████████████████████████████████████████████████████████████████████████████████████
+"""
+
+main_menu = {   # skabelon til at skabe en menu
+    "color_info": [198, 198, 198, 0, 167, 205, 134, 189, 0],
+    "placement_info": [400, 300, 300, 250, "center", "center"],
+    "components": {
+        0: {
+            "color_info": None,
+            "placement_info": None,
+            "text": "Afslut",
+            "button_function": "quit"
+        },
+        1: {
+            "color_info": None,
+            "placement_info": None,
+            "text": "Spil",
+            "button_function": "Start"
+        },
+        2: {
+            "color_info": [22, 124, 198, 43, 80, 170, 79, 168, 111],
+            "placement_info": [0, -40, 140, 60, "center", "center"],
+            "text": "Das Spiel",
+            "button_function": None
+        }
+    }
+}
+
+
+#with open("menu.json", "w", encoding="utf-8") as f:
+#    json = json.dump(main_menu, f, indent=4)
+
+
+
+function_map = {
+    "quit": quit,
+    "start": start,
+    None: None
+}
+
+menus = []
+
+def create_menu_from_json(json_data):
+    placement_info = UI_component_placement_info(
+        json_data["placement_info"][0],
+        json_data["placement_info"][1],
+        json_data["placement_info"][2],
+        json_data["placement_info"][3],
+        json_data["placement_info"][4],
+        json_data["placement_info"][5]
+        )
+    color_info = UI_component_color_info(
+        (json_data["color_info"][0], json_data["color_info"][1], json_data["color_info"][2]),
+        (json_data["color_info"][3], json_data["color_info"][4], json_data["color_info"][5]),
+        (json_data["color_info"][6], json_data["color_info"][7], json_data["color_info"][8])
+    )
+
+    menu = screen_box(placement_info, color_info)
+
+    for index in range(len(json_data["components"])):
         
 
+        index_component = json_data["components"][f"{index}"]
+        component_color = UI_info()
+        component_placement = UI_info()
+        component_text = None
+
+        if  index_component["color_info"] != None:
+            component_color = UI_component_color_info(
+                (index_component["color_info"][0], index_component["color_info"][1], index_component["color_info"][2]),
+                (index_component["color_info"][3], index_component["color_info"][4], index_component["color_info"][5]),
+                (index_component["color_info"][6], index_component["color_info"][7], index_component["color_info"][8])
+            )
+        if index_component["placement_info"] != None:
+            component_placement = UI_component_placement_info(
+                index_component["placement_info"][0],
+                index_component["placement_info"][1],
+                index_component["placement_info"][2],
+                index_component["placement_info"][3],
+                index_component["placement_info"][4],
+                index_component["placement_info"][5]
+            )
+        if index_component["text"] != None:
+            component_text = index_component["text"]
+
+        if index_component["button_function"] != None:
+            func_key = index_component["button_function"]
+            func_key = function_map.get(func_key, None)
+        else:
+            func_key = None
+
+        menu.create_UIcomponent(component_color, component_placement, component_text, func_key)
+    menus.append(menu)
 
 # Testkode
 if __name__ == "__main__":
     pygame.init()
     pygame.font.init()
+    with open("menu.json", "r", encoding="utf-8") as f:
+       menu_data = json.load(f)
+    create_menu_from_json(menu_data)
 
     screen = pygame.display.set_mode((800, 500))
     pygame.display.set_caption("Window Partitioner")
 
-    kasse = screen_box(UI_component_placement_info(300, 200, 400, 250, "Askeslaske"), UI_component_color_info((198, 198, 198), (139, 139, 139), (59, 133, 38)))
+    #kasse = screen_box(UI_component_placement_info(300, 200, 400, 250, "Askeslaske"), UI_component_color_info((198, 198, 198), (0, 167, 205), (134, 189, 0)))
 
-    label1 = label("Dette er en test af Window Partitioner", 24)
-    kasse.add_UIcomponent(label1)
+    #label1 = label("Dette er en test af Window Partitioner", 27)
+    #kasse.add_UIcomponent(label1)
 
-    kasse.create_UIcomponent(UI_info(), UI_info(), "Askeslaske", True, quit)
-    kasse.create_UIcomponent(UI_info(), UI_info(), "Akselslakel", True, quit)
-    kasse.create_UIcomponent(UI_component_color_info(), UI_component_placement_info(0, 0, 80, 40, "center", "center"), "Yippe", True, quit)
+    #kasse.create_UIcomponent(UI_info(), UI_info(), "Askeslaske", quit)
+    #kasse.create_UIcomponent(UI_info(), UI_info(), "Akselslakel", quit)
+    #kasse.create_UIcomponent(UI_info(), UI_component_placement_info(0, 0, 80, 40, "center", "center"), "Charlie")
 
 
     while running:
         #popup_menu.update()
-        kasse.update()
+        #kasse.update()
+        for box in menus:
+            box.update()
         
 
         for event in pygame.event.get():                    # Håndterer begivenheder som lukning af vindue og museklik.
@@ -469,15 +578,17 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT:
                 running = False
             
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
-                kasse.move(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
+            #elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
+                #kasse.move(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
             else:
-                kasse.event_handler(event)
+                for box in menus:
+                    box.event_handler(event)
 
             #elif event.type == pygame.MOUSEBUTTONDOWN:      # Håndterer museklik.
             #    mouse_pos = event.pos
 
-        kasse.draw(screen)
+        for box in menus:
+            box.draw(screen)
         #screen_box.draw(screen)
         pygame.display.flip()
     pygame.quit()
