@@ -1,39 +1,36 @@
 """
-              mm                                        
-*@@@***@@m  *@@@                                        
-  @@   *@@m   @@                                        
-  @@   m@@    @@   m@*@@m  *@@*   *@@*  mm@*@@ *@@@m@@@ 
-  @@@@@@@     !@  @@   @@    @@   m@   m@*   @@  @@* ** 
-  @@          !@   m@@@!@     @@ m!    !@******  @!     
-  @!          !@  @!   !@      @@!     !@m    m  @!     
-  @!          !!   !!!!:!      @!!     !!******  !!     
-  !!          :!  !!   :!      !!:     :!!       !:     
-:!:!:       : : : :!: : !:     !!       : : :: : :::    
-                             ::!                        
-                           :::                          
+Enemies
 """
 from settings import*
 from vectors import*
 from pathfind import astar
 from world import World
 from tile import Tile
-from inventory import *
+from random import randint
 import pygame
 
-class Player:
-    def __init__(self, health: int, speed: float = 0.15,
-                 grid_position: Vector2i = Vector2i(int(MAP_WIDTH/2), int(MAP_HEIGHT/2)),
-                 color=(0,0,0)):
-        self.grid_position: Vector2i = grid_position
-        self.world_position: Vector2f = self.grid_position*TILE_SIZE + Vector2f(TILE_SIZE/2, TILE_SIZE/2)
+def get_valid_spawn_position(real_tiles : dict[Vector2i, Tile]) -> Vector2i:
+    while True:
+        pos = Vector2i(randint(1, MAP_WIDTH - 1), randint(1, MAP_HEIGHT - 1))
+        tile = real_tiles.get(pos)
+
+        if tile == None or tile.passable:
+            return pos
+
+class Enemies:
+    def __init__(self, color, state, world: World, health: int, 
+                 damage: int, speed: float, home_radius: int, 
+                 home_center: Vector2i, grid_position: Vector2i):
         self.health = health
+        self.damage = damage
         self.speed = speed
         self.color = color
-        self.final_world_position: Vector2f = self.world_position
-        self.subtargets: list[Vector2f] = []   # expanded path in world coords
-
-        self.inventory : Inventory = Inventory()
-
+        self.state = state
+        self.grid_position = get_valid_spawn_position(world.real_tiles)
+        self.home_center = self.grid_position
+        self.world_position: Vector2f = self.grid_position*TILE_SIZE + Vector2f(TILE_SIZE/2, TILE_SIZE/2)
+        self.subtargets: list[Vector2f] = []
+    
     def draw(self, screen : pygame.Surface):
         pygame.draw.circle(screen,self.color,(self.world_position.x,self.world_position.y),int(TILE_SIZE/2))
         if not DEBUG_MODE:
@@ -80,7 +77,7 @@ class Player:
         # Base corner is the center of cell a
         ax, ay = a.x * TILE_SIZE + TILE_SIZE/2, a.y * TILE_SIZE + TILE_SIZE/2
         return Vector2f(ax + dx * TILE_SIZE/2, ay + dy * TILE_SIZE/2)
-
+    
     def newTarget(self, params : list[list[int,int],World]):
         worldTargetList = params[0]
         worldTarget = Vector2f(worldTargetList[0],worldTargetList[1])
@@ -99,7 +96,7 @@ class Player:
 
         # Did not consume the event
         return False
-
+    
     def update(self, dt: float):
         if not self.subtargets:
             return
@@ -116,28 +113,7 @@ class Player:
             self.subtargets.pop(0)
             if len(self.path) > 0 and self.world_position == (self.path[0]*TILE_SIZE + Vector2f(TILE_SIZE/2, TILE_SIZE/2)):
                 self.grid_position = self.path.pop(0)
-        print(self.grid_position)
+ 
     
-    def interact(self, params : list[list[int,int],World]):
-        print(params)
-        interact_position : Vector2i= Vector2i(params[0][0],params[0][1])
-        world : World = params[1]
-        grid_interact_position: Vector2i = Vector2i(int(interact_position.x // TILE_SIZE), int(interact_position.y // TILE_SIZE))
-        print(grid_interact_position)
-
-        print(interact_position)
-
-        tile : Tile = world.real_tiles.get(grid_interact_position)
-
-        if tile == None:
-            print("None")
-            return False
-        
-        if tile.position.distance_to(self.grid_position) >= 3:
-            print("Far")
-            return False
-
-        tile.interacted(self.inventory.equipped, self.inventory)
-        print(self.inventory.items)
-        # Does not consume an event
-        return True
+    
+    

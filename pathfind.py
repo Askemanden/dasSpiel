@@ -3,6 +3,7 @@ import math
 from vectors import Vector2i
 from settings import *
 
+
 def in_bounds(x: int, y: int) -> bool:
     return 0 <= x < MAP_WIDTH and 0 <= y < MAP_HEIGHT
 
@@ -27,7 +28,8 @@ def move_cost(dx: int, dy: int) -> float:
 def heuristic(a: Vector2i, b: Vector2i) -> float:
     # Octile distance (admissible and consistent for 8-connected grids)
     dx, dy = abs(a.x - b.x), abs(a.y - b.y)
-    return (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
+    heur = (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
+    return heur
 
 def astar(
     start: Vector2i,
@@ -46,6 +48,9 @@ def astar(
     ]
 
     if goal in blocked:
+        return None
+    
+    if goal == start:
         return None
 
 

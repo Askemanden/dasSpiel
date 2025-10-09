@@ -4,7 +4,6 @@ from Player import *
 from pathfind import *
 from tile import Tile
 import pygame
-from random import randint
 
 LEFT = 1
 RIGHT = 3
@@ -47,8 +46,6 @@ def main():
     pygame.display.flip()   # Update display
     dt = clock.tick(1)          # Limit to 60 FPS
 
-    i = 0
-
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -57,7 +54,9 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == LEFT:
                     leftClick.emit([event.pos, world])
+                    print("l")
                 elif event.button == RIGHT:
+                    print("r")
                     rightClick.emit([event.pos, world])
 
 
