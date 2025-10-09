@@ -4,7 +4,7 @@ import pygame
 from settings import *
 from biome import BiomeTypes
 import numpy as np
-from inventory import Item, MINING_TYPE, Inventory
+from inventory import *
 
 
 BIOME_COLOR_MODULATIONS = {
@@ -69,15 +69,15 @@ class Tile:
 class Stone(Tile):
     def __init__(self, x, y, biome : BiomeTypes):
         texture = modulate_texture(STONE_TEXTURE, biome)
-        super().__init__(x,y,False, MINING_TYPE.STONE ,texture)
+        super().__init__(x,y,False, MINING_TYPE.STONE ,texture, StoneBlock())
 
 class Wood(Tile):
     def __init__(self, x, y, biome : BiomeTypes):
         texture = modulate_texture(WOOD_TEXTURE, biome)
-        super().__init__(x,y,False, MINING_TYPE.WOOD,texture)
+        super().__init__(x,y,False, MINING_TYPE.WOOD,texture, WoodBlock())
 
 class Bush(Tile):
     def __init__(self, x, y, biome : BiomeTypes):
         texture = modulate_texture(BUSH_TEXTURE, biome)
-        super().__init__(x,y,True, MINING_TYPE.BUSH,texture)
+        super().__init__(x,y,True, MINING_TYPE.BUSH,texture, Apple())
 

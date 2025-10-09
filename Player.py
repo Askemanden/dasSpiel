@@ -116,19 +116,28 @@ class Player:
             self.subtargets.pop(0)
             if len(self.path) > 0 and self.world_position == (self.path[0]*TILE_SIZE + Vector2f(TILE_SIZE/2, TILE_SIZE/2)):
                 self.grid_position = self.path.pop(0)
+        print(self.grid_position)
     
     def interact(self, params : list[list[int,int],World]):
-        interact_position : Vector2i= Vector2i(params[0][0],params[0][0])
+        print(params)
+        interact_position : Vector2i= Vector2i(params[0][0],params[0][1])
         world : World = params[1]
+        grid_interact_position: Vector2i = Vector2i(int(interact_position.x // TILE_SIZE), int(interact_position.y // TILE_SIZE))
+        print(grid_interact_position)
 
-        grid_interact_position = Vector2i(int(interact_position.x // TILE_SIZE), int(interact_position.y // TILE_SIZE))
+        print(interact_position)
 
-        tile = world.real_tiles.get(grid_interact_position)
+        tile : Tile = world.real_tiles.get(grid_interact_position)
 
         if tile == None:
+            print("None")
+            return False
+        
+        if tile.position.distance_to(self.grid_position) >= 3:
+            print("Far")
             return False
 
-        tile.interacted(self.inventory.equipped)
-
+        tile.interacted(self.inventory.equipped, self.inventory)
+        print(self.inventory.items)
         # Does not consume an event
         return True

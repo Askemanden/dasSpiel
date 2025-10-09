@@ -31,7 +31,7 @@ def heuristic(a: Vector2i, b: Vector2i) -> float:
     dx, dy = abs(a.x - b.x), abs(a.y - b.y)
     heur = (dx + dy) + (math.sqrt(2) - 2) * min(dx, dy)
     if dx == last_direction.x and dy == last_direction.y:
-        heur -= 0.01
+        heur += 1
     return heur
 
 def astar(
@@ -51,6 +51,9 @@ def astar(
     ]
 
     if goal in blocked:
+        return None
+    
+    if goal == start:
         return None
 
 
