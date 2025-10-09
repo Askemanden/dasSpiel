@@ -113,20 +113,14 @@ class UI_component_color_info(UI_info):
 class UI_component_text(UI_info):
     def __init__(self, component, text = "Hej verden"):
         self.component = component
-        self.x = self.component.rect.x
-        self.y = self.component.rect.y
-        self.width = self.component.rect.width
-        self.height = self.component.rect.height
         
         self.text = text
         self.font = pygame.font.SysFont('Arial', 20)
         self.bold = False
 
-        self.rect = self.component.rect
-
     def get_text_color(self):
-        if isinstance(self.container.color_info, UI_component_color_info):
-            return self.container.color_info.complementary_color
+        if isinstance(self.component.color_info, UI_component_color_info):
+            return self.component.color_info.complementary_color
         else:
             return self.component.parent_box.color_info.complementary_color
 
@@ -136,19 +130,23 @@ class UI_component_text(UI_info):
 
     def draw(self, screen):
         image = self.font.render(self.text, True, self.get_text_color())
-        self.rect = image.get_rect()
+        self.text_rect = image.get_rect()
 
         text_surface = self.font.render(self.text, True, self.get_text_color(), None)
-        screen.blit(text_surface, (self.rect.x + 5, self.rect.y + 5))
+        screen.blit(text_surface, (self.component.rect.x + 5 + (0.5 * (self.component.rect.width - self.text_rect.width)), self.component.rect.y + self.component.rect.height * 0.2))
 
 class UI_button_extension(UI_info):
     def __init__(self, component, function = intet):
         self.function = function
         self.component = component
-        if self.component.color_info != None:
-            self.lighter_color = (min(self.component.color_info.secondary_color[0] + 40, 255), min(self.component.color_info.secondary_color[1] + 40, 255), min(self.component.color_info.secondary_color[2] + 40, 255))
+        color_source = None
+        if isinstance(self.component.color_info, UI_component_color_info):
+            color_source = self.component.color_info
         else:
-            self.lighter_color = (min(self.component.parent_box.color_info.secondary_color[0] + 40, 255), min(self.component.parent_box.color_info.secondary_color[1] + 40, 255), min(self.component.parent_box.color_info.secondary_color[2] + 40, 255))
+            color_source = self.component.parent_box.color_info
+        
+        self.lighter_color = (min(color_source.secondary_color[0] + 40, 255), min(color_source.secondary_color[1] + 40, 255), min(color_source.secondary_color[2] + 40, 255))
+
 
     def event_handling(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -206,12 +204,13 @@ class UI_component:                                         # Basisklasse for al
             color_source = self.color_info
         
         #pygame.draw.rect(screen, (100, 100, 100), self.rect)
-        #self.text.draw(screen)
         if self.hovered:
-            brighter_color = (min(color_source.secondary_color[0] + 40, 255), min(color_source.secondary_color[1] + 40, 255), min(color_source.secondary_color[2] + 40, 255))
+            #brighter_color = (min(color_source.secondary_color[0] + 40, 255), min(color_source.secondary_color[1] + 40, 255), min(color_source.secondary_color[2] + 40, 255))
+            brighter_color = color_source.accent_color
             pygame.draw.rect(screen, brighter_color, self.rect)
         else:
             pygame.draw.rect(screen, color_source.secondary_color, self.rect)
+        self.text.draw(screen)
 
 
 """
@@ -231,10 +230,10 @@ class alignment(enum.Enum):
     vertical = 1
 
 class UI_element:                                                       # Basisklasse for alle UI elementer.
-    def __init__(self, x, y):
-        self.screen_position_x = x
-        self.screen_position_y = y
-        self.rect = pygame.Rect(x, y, 10, 10)                           # Basisklasse har en rektangel.
+    def __init__(self, placement : UI_component_placement_info):
+        self.screen_position_x = placement.x
+        self.screen_position_y = placement.y
+        self.rect = pygame.Rect(placement.x, placement.y, placement.width, placement.height)                           # Basisklasse har en rektangel.
         self.color_info = UI_info()
 
     def update(self):
@@ -247,20 +246,19 @@ class UI_element:                                                       # Basisk
         pass
 
 class screen_box (UI_element):                                       # En boks på skærmen der kan indeholde knapper og items.
-    def __init__(self, x, y, width, height, button_alignment = alignment.horizontal):
-        super().__init__(x, y)
-        self.screen_position_x = x - width * 0.5
-        self.screen_position_y = y - height * 0.5
-        self.rect = pygame.Rect(self.screen_position_x, self.screen_position_y, width, height)
+    def __init__(self, placement : UI_component_placement_info, color : UI_component_color_info):
+        super().__init__(placement)
+        self.screen_position_x = placement.x - placement.width * 0.5
+        self.screen_position_y = placement.y - placement.height * 0.5
+        self.rect = pygame.Rect(self.screen_position_x, self.screen_position_y, placement.width, placement.height)
 
         self.border_width = 8
-        self.border_color = (17, 37, 78)
-
-        self.color_info = UI_component_color_info()
+        
+        self.color_info = color
+        self.border_color = color.secondary_color
        
         self.components = []
         self.number_of_buttons = 0                                      # Antallet af automatisk placerede knapper i listen af containere. Bruges til at arrangere knapperne jævnt.
-        self.button_alignment = button_alignment
 
     def create_UIcomponent(self, color : UI_component_color_info = UI_info(), placement_info : UI_component_placement_info = UI_info(), text = "", button : bool = False, function = intet):
         component = UI_component(placement_info, color)
@@ -320,12 +318,9 @@ class screen_box (UI_element):                                       # En boks p
             if isinstance(component.button, UI_button_extension):
                 button_height = component.rect.height
                 button_width = component.rect.width
-                if self.button_alignment == alignment.horizontal:
-                    component.rect.x = self.rect.x + self.border_width + automatic_button_index * (button_width + self.border_width)
-                    component.rect.y = self.rect.y + self.rect.height - self.border_width - button_height
+                component.rect.x = self.rect.x + self.border_width + automatic_button_index * (button_width + self.border_width)
+                component.rect.y = self.rect.y + self.rect.height - self.border_width - button_height
 
-                else:
-                    pass    # TODO: Implementer vertikal placering af knapper.
             elif isinstance(component, label):
                 component.rect.x = self.rect.x + self.border_width
                 component.rect.y = self.rect.y + self.border_width
@@ -454,13 +449,13 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode((800, 500))
     pygame.display.set_caption("Window Partitioner")
 
-    screen_box = kasse = screen_box(400, 150, 400, 200)
+    kasse = screen_box(UI_component_placement_info(300, 200, 400, 250, "Askeslaske"), UI_component_color_info((198, 198, 198), (139, 139, 139), (59, 133, 38)))
 
     label1 = label("Dette er en test af Window Partitioner", 24)
     kasse.add_UIcomponent(label1)
 
-    kasse.create_UIcomponent(UI_component_color_info(), UI_info(), "hej", True, quit)
-    kasse.create_UIcomponent(UI_component_color_info(), UI_info(), "hej", True, quit)
+    kasse.create_UIcomponent(UI_info(), UI_info(), "Askeslaske", True, quit)
+    kasse.create_UIcomponent(UI_info(), UI_info(), "Akselslakel", True, quit)
 
 
 
