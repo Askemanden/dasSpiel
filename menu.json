@@ -1,11 +1,11 @@
 {
     "color_info": [
-        198,
-        198,
-        198,
-        0,
-        127,
-        165,
+        160,
+        160,
+        160,
+        120,
+        160,
+        180,
         134,
         189,
         0
@@ -13,8 +13,8 @@
     "placement_info": [
         400,
         200,
+        600,
         300,
-        250,
         "center",
         "center"
     ],
@@ -23,19 +23,21 @@
             "color_info": null,
             "placement_info": null,
             "text": "Afslut",
+            "text_size": null,
             "button_function": "quit"
         },
         "1": {
             "color_info": null,
             "placement_info": null,
             "text": "Spil",
+            "text_size": null,
             "button_function": "start"
         },
         "2": {
             "color_info": [
-                22,
-                124,
-                198,
+                255,
+                255,
+                255,
                 43,
                 80,
                 170,
@@ -45,13 +47,42 @@
             ],
             "placement_info": [
                 0,
-                -40,
+                20,
                 140,
-                60,
+                0,
                 "center",
-                "center"
+                "Askeslaske"
             ],
             "text": "Das Spiel",
+            "text_size": 60,
+            "button_function": null
+        },
+        "3": {
+            "color_info": null,
+            "placement_info": [
+                0,
+                100,
+                140,
+                0,
+                "center",
+                "Askeslaske"
+            ],
+            "text": "Das spiel, der Übermenschen",
+            "text_size": 26,
+            "button_function": null
+        },
+        "4": {
+            "color_info": null,
+            "placement_info": [
+                0,
+                130,
+                140,
+                0,
+                "center",
+                "Askeslaske"
+            ],
+            "text": "Skabt af Jacob, Aske og Louis",
+            "text_size": 15,
             "button_function": null
         }
     }

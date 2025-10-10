@@ -23,32 +23,6 @@ from signals import*
 running = True
 
 
-#TODO: reimplementer popup_menu
-""" 
-class popup_menu_types(enum.Enum):
-    OK_CANCEL = 0
-    YES_NO = 1
-    QUIT = 2
-
-class popup_menu(screen_box):
-    def __init__(self, x, y, width, height, type):
-        super().__init__(x, y, width, height, button_alignment = alignment.horizontal)
-        self.type = type
-        if self.type == popup_menu_types.OK_CANCEL:
-            pass
-        elif self.type == popup_menu_types.YES_NO:
-            pass
-        elif self.type == popup_menu_types.QUIT:
-            
-            return_button = container(container_type.button, intet)
-            return_button.color = (34, 139, 34)  # Grøn farve for return knappen.
-            self.add_container(return_button)
-
-            quit_button = container(container_type.button, quit)
-            quit_button.color = (220, 20, 60)  # Rød farve for quit knappen.
-            self.add_container(quit_button)
-"""
-
 def intet():
     pass
 
@@ -115,16 +89,17 @@ class UI_component_color_info(UI_info):
 """
 
 class UI_component_text(UI_info):
-    def __init__(self, component, text = "Hej verden"):
+    def __init__(self, component, text = "Hej verden", size = 20):
         self.component = component
         
         self.text = text
-        self.font = pygame.font.SysFont('Arial', 20)
+        self.size = size
+        self.font = pygame.font.SysFont('Comic Sans', self.size)
         self.bold = False
 
     def get_text_color(self):
         if isinstance(self.component.color_info, UI_component_color_info):
-            return self.component.color_info.secondary_complementary_color
+            return self.component.color_info.primary_complementary_color
         else:
             return self.component.parent_box.color_info.secondary_complementary_color
 
@@ -137,7 +112,7 @@ class UI_component_text(UI_info):
         self.text_rect = image.get_rect()
 
         text_surface = self.font.render(self.text, True, self.get_text_color(), None)
-        screen.blit(text_surface, (self.component.rect.x + 5 + (0.5 * (self.component.rect.width - self.text_rect.width)), self.component.rect.y + self.component.rect.height * 0.2))
+        screen.blit(text_surface, (self.component.rect.x  + (0.5 * (self.component.rect.width - self.text_rect.width)), self.component.rect.y + self.component.rect.height * 0.2))
 
 class UI_button_extension(UI_info):
     def __init__(self, component, function = intet):
@@ -195,17 +170,19 @@ class UI_component:                                         # Basisklasse for al
     def draw(self, screen):
        
         if not isinstance(self.color_info, UI_component_color_info):
-           color_source = self.parent_box.color_info
+           color_source = self.parent_box.color_info.secondary_color
+           accent_color = self.parent_box.color_info.accent_color
         else:
-            color_source = self.color_info
+            color_source = self.color_info.primary_color
+            accent_color = self.color_info.accent_color
         
         #pygame.draw.rect(screen, (100, 100, 100), self.rect)
         if self.hovered:
             #brighter_color = (min(color_source.secondary_color[0] + 40, 255), min(color_source.secondary_color[1] + 40, 255), min(color_source.secondary_color[2] + 40, 255))
-            brighter_color = color_source.accent_color
+            brighter_color = accent_color
             pygame.draw.rect(screen, brighter_color, self.rect)
         else:
-            pygame.draw.rect(screen, color_source.secondary_color, self.rect)
+            pygame.draw.rect(screen, color_source, self.rect)
         self.text.draw(screen)
 
 
@@ -251,15 +228,16 @@ class screen_box (UI_element):                                       # En boks p
         self.border_width = 8
         
         self.color_info = color
-        self.border_color = color.secondary_color
+        self.fill_color = (198, 198, 198)
+        self.border_color = color.primary_color
        
         self.components = []
         self.number_of_buttons = 0                                      # Antallet af automatisk placerede knapper i listen af containere. Bruges til at arrangere knapperne jævnt.
 
-    def create_UIcomponent(self, color : UI_component_color_info = UI_info(), placement_info : UI_component_placement_info = UI_info(), text = "", function = None):
+    def create_UIcomponent(self, color : UI_component_color_info = UI_info(), placement_info : UI_component_placement_info = UI_info(), text = "", text_size = 20, function = None):
         component = UI_component(placement_info, color)
         component.parent_box = self
-        text_object = UI_component_text(component, text)
+        text_object = UI_component_text(component, text, text_size)
         component.text = text_object
         if function != None:
             button_object = UI_button_extension(component, function)
@@ -365,7 +343,7 @@ class screen_box (UI_element):                                       # En boks p
         # Tegner en boks med en kant. Kanten er border_width pixels bred.
         border_rect = pygame.Rect(self.rect.left - self.border_width, self.rect.top - self.border_width, self.rect.width + self.border_width * 2, self.rect.height + self.border_width * 2)
         pygame.draw.rect(screen, self.border_color, border_rect)
-        pygame.draw.rect(screen, self.color_info.primary_color, self.rect)
+        pygame.draw.rect(screen, self.fill_color, self.rect)
 
         # Tegner alle UI-komponenter i boksen.
         # For nu arrangeres alle knapper, vandret i bunden af boksen. Lidt ligesom Windows pop-up menuer.
@@ -517,6 +495,7 @@ def create_menu_from_json(json_data):
         component_color = UI_info()
         component_placement = UI_info()
         component_text = None
+        component_text_size = 20
 
         if  index_component["color_info"] != None:
             component_color = UI_component_color_info(
@@ -534,7 +513,10 @@ def create_menu_from_json(json_data):
                 index_component["placement_info"][5]
             )
         if index_component["text"] != None:
-            component_text = index_component["text"]
+                component_text = index_component["text"]
+
+        if index_component["text_size"] != None:
+            component_text_size = int(index_component["text_size"])
 
         if index_component["button_function"] != None:
             func_key = index_component["button_function"]
@@ -542,7 +524,7 @@ def create_menu_from_json(json_data):
         else:
             func_key = None
 
-        menu.create_UIcomponent(component_color, component_placement, component_text, func_key)
+        menu.create_UIcomponent(component_color, component_placement, component_text, component_text_size, func_key)
     menus.append(menu)
 
 # Testkode
@@ -584,7 +566,7 @@ if __name__ == "__main__":
                 for box in menus:
                     box.event_handler(event)
 
-            #elif event.type == pygame.MOUSEBUTTONDOWN:      # Håndterer museklik.
+            #elif event.type == pygame.MOUSEBUTTONDOWN:     # Håndterer museklik.
             #    mouse_pos = event.pos
 
         for box in menus:
