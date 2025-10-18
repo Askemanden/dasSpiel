@@ -254,4 +254,290 @@ classDiagram
 
 ```
 
+### Main
+
+```mermaid
+flowchart TD
+    A["main()"] --> B["pygame.init()
+    screen = pygame.display.set_mode(...)
+    pygame.display.set_caption(...)
+    world = World()
+    player = Player(health=10)
+    leftClick = Signal()
+    rightClick = Signal()"]
+
+    B --> C["leftClick.connect('move player', player.newTarget)
+    
+    rightClick.connect('interact', player.interact)"]
+
+    C --> D["running = True
+    clock = pygame.time.Clock()
+    dt = 0"]
+
+    D --> E["for event in pygame.event.get()"]
+    E --> F{"event.type == QUIT"}
+    F -- Yes --> G["running = False"]
+    F -- No --> H["continue"]
+
+    G --> I["player.update(dt)
+    screen.fill((0,0,0))
+    world.draw(screen)
+    player.draw(screen)
+    pygame.display.flip()
+    dt = clock.tick(1)"]
+    H --> I
+
+    I --> J{"while running"}
+    J -- True --> K["for event in pygame.event.get()"]
+    K --> L{"event.type == QUIT"}
+    L -- Yes --> M["running = False"]
+    L -- No --> N{"event.type == MOUSEBUTTONDOWN"}
+    N -- Yes --> O{"event.button == LEFT or RIGHT"}
+
+    O -- LEFT --> P["leftClick.emit([event.pos, world])
+    print('l')"]
+    O -- RIGHT --> Q["print('r')
+    rightClick.emit([event.pos, world])"]
+    O -- No --> K
+
+    P --> R["player.update(dt)
+    screen.fill((0,0,0))
+    world.draw(screen)
+    player.draw(screen)
+    pygame.display.flip()
+    dt = clock.tick(60)"]
+    Q --> R
+    N -- No --> R
+    R --> J
+
+    %% End
+    J -- False --> S["pygame.quit()"]
+    S --> T["end main()"]
+
+```
+
+### Pathfind flowcharts
+#### astar
+```mermaid
+flowchart TD
+    A["astar(start, goal, blocked)"] --> B{"goal in blocked"}
+    B -- Yes --> Z["return None"]
+    B -- No --> C{"goal == start"}
+    C -- Yes --> Z["return None"]
+    C -- No --> D["directions = 8-neighbors
+    open_set = []
+    counter = 0
+    heappush(open_set, (0.0, counter, start))
+    counter += 1
+    came_from = {}
+    g_score = { start: 0.0 }"]
+
+    D --> E{"open_set not empty"}
+    E -- No --> Z["return None"]
+    E -- Yes --> F["_, _, current = heappop(open_set)"]
+    F --> G{"current == goal"}
+    G -- Yes --> H["path = []
+    while current in came_from:
+        path.append(current)
+        current = came_from[current]
+    path.append(start)
+    return reversed(path)"]
+    G -- No --> I["for (dx, dy) in directions"]
+    I --> J{"can_move(current, dx, dy, blocked)"}
+    J -- No --> I
+    J -- Yes --> K["nx = current.x + dx
+    ny = current.y + dy
+    neighbor = Vector2i(nx, ny)
+    tentative_g = g_score[current] + move_cost(dx, dy)"]
+    K --> L{"neighbor not in g_score OR tentative_g < g_score[neighbor]"}
+    L -- Yes --> M["g_score[neighbor] = tentative_g
+    f_score = tentative_g + heuristic(neighbor, goal)
+    heappush(open_set, (f_score, counter, neighbor))
+    counter += 1
+    came_from[neighbor] = current"]
+    L -- No --> I
+    M --> I
+    I --> E
+
+```
+
+#### can_move
+```mermaid
+flowchart TD
+    A["can_move(current, dx, dy, blocked)"] --> B{"dx != 0 AND dy != 0"}
+    B -- Yes --> C["side_a = (current.x + dx, current.y)
+    side_b = (current.x, current.y + dy)
+    blocked_a = is_blocked(side_a.x, side_a.y, blocked)
+    blocked_b = is_blocked(side_b.x, side_b.y, blocked)"]
+    C --> D{"blocked_a OR blocked_b"}
+    D -- Yes --> Z["return False"]
+    D -- No --> E["nx = current.x + dx
+    ny = current.y + dy
+    return in_bounds(nx, ny) AND Vector2i(nx, ny) not in blocked"]
+    B -- No --> E
+```
+
+#### is_blocked
+```mermaid
+flowchart TD
+    A["is_blocked(x, y, blocked)"] --> B["in = in_bounds(x, y)"]
+    B --> C{"NOT in OR Vector2i(x, y) in blocked"}
+    C -- Yes --> Z["return True"]
+    C -- No --> Z["return False"]
+```
+
+#### in_bounds
+```mermaid
+flowchart TD
+    A["in_bounds(x, y)"] --> B{"0 <= x < MAP_WIDTH AND 0 <= y < MAP_HEIGHT"}
+    B -- Yes --> Z["return True"]
+    B -- No --> Z["return False"]
+```
+
+#### move_cost
+```mermaid
+flowchart TD
+    A["move_cost(dx, dy)"] --> B{"dx != 0 AND dy != 0"}
+    B -- Yes --> Z["return sqrt(2)"]
+    B -- No --> Z["return 1.0"]
+```
+#### heuristic
+```mermaid
+flowchart TD
+    A["heuristic(a, b)"] --> B["dx = abs(a.x - b.x)
+    dy = abs(a.y - b.y)
+    m = min(dx, dy)
+    return (dx + dy) + (sqrt(2) - 2) * m"]
+```
+
+### Player flowcharts
+
+#### set_path
+```mermaid
+flowchart TD
+    A["set_path(path, final_world_position)"] --> B{"path == None"}
+    B -- Yes --> Z["return"]
+    B -- No --> C["path.pop(0)"]
+    C --> D["self.path = path"]
+    D --> E["self.final_world_position = final_world_position"]
+    E --> F["self.subtargets.clear()"]
+    F --> G{"path empty?"}
+    G -- Yes --> Z["return"]
+    G -- No --> H["for cell in path"]
+    H --> I["cell_center = Vector2f(...)"]
+    I --> J["corner = _shared_point(prev_cell, cell)"]
+    J --> K{"corner != None"}
+    K -- Yes --> L["subtargets.append(corner)"]
+    K -- No --> M["skip"]
+    L --> M
+    M --> N["subtargets.append(cell_center)"]
+    N --> O["prev_cell = cell"]
+    O --> H
+    H --> P["subtargets.pop()"]
+    P --> Q["subtargets.append(final_world_position)"]
+    Q --> Z["end"]
+
+```
+
+#### _shared_point
+```mermaid
+flowchart TD
+    A["_shared_point(a, b)"] --> B["dx = b.x - a.x, dy = b.y - a.y"]
+    B --> C{"abs(dx) > 1 OR abs(dy) > 1"}
+    C -- Yes --> Z["return None"]
+    C -- No --> D["ax = a.x*TILE_SIZE + TILE_SIZE/2"]
+    D --> E["ay = a.y*TILE_SIZE + TILE_SIZE/2"]
+    E --> F["return Vector2f(ax + dx*TILE_SIZE/2, ay + dy*TILE_SIZE/2)"]
+```
+
+#### newTarget
+```mermaid
+flowchart TD
+    A["newTarget(params)"] --> B["worldTarget = Vector2f(params[0])"]
+    B --> C["target = Vector2i(worldTarget // TILE_SIZE)"]
+    C --> D["world = params[1]"]
+    D --> E["blocked = []"]
+    E --> F["for tile in world.real_tiles.values()"]
+    F --> G{"tile.passable == False"}
+    G -- Yes --> H["blocked.append(tile.position)"]
+    G -- No --> F
+    H --> F
+    F --> I["path = astar(self.grid_position, target, blocked)"]
+    I --> J["set_path(path, worldTarget)"]
+    J --> Z["return False"]
+```
+
+#### update
+```mermaid
+flowchart TD
+    A["update(dt)"] --> B{"subtargets empty?"}
+    B -- Yes --> Z["return"]
+    B -- No --> C["target = subtargets[0]"]
+    C --> D["move_vec = target - world_position"]
+    D --> E{"move_vec.length() > 0"}
+    E -- Yes --> F["direction = move_vec.normalize()"]
+    F --> G["world_position += direction * speed * dt"]
+    E -- No --> H["skip"]
+    G --> I{"(target - world_position).length() < speed*dt"}
+    H --> I
+    I -- Yes --> J["world_position = target"]
+    J --> K["subtargets.pop(0)"]
+    K --> L{"path not empty AND world_position == path[0] center"}
+    L -- Yes --> M["grid_position = path.pop(0)"]
+    L -- No --> N["skip"]
+    M --> O["print(grid_position)"]
+    N --> O
+    I -- No --> O
+    O --> Z["end"]
+```
+
+#### interact
+```mermaid
+flowchart TD
+    A["interact(params)"] --> B["interact_position = Vector2i(params[0])"]
+    B --> C["world = params[1]"]
+    C --> D["grid_interact_position = interact_position // TILE_SIZE"]
+    D --> E["tile = world.real_tiles.get(grid_interact_position)"]
+    E --> F{"tile == None"}
+    F -- Yes --> Z["return False"]
+    F -- No --> G{"tile.position.distance_to(grid_position) >= 3"}
+    G -- Yes --> Z["return False"]
+    G -- No --> H["tile.interacted(inventory.equipped, inventory)"]
+    H --> I["print(inventory.items)"]
+    I --> Z["return True"]
+```
+
+### World Flowcharts
+
+#### generate_chunk
+```mermaid
+flowchart TD
+    A["generate_chunk"] --> B["Compute seed from world_seed * chunk_pos.length()"]
+    B --> C["Create feature_noise with seed"]
+    C --> D["biome = Biome(noise(...))"]
+    D --> E["features = []"]
+    E --> F["Loop over grid with FEATURE_FREQUENCY"]
+    F --> G["noise_val = feature_noise(...)"]
+    G --> H["features.append(Feature(...))"]
+    H --> F
+    F --> I["tiles_list = []"]
+    I --> J["For each feature: extend tiles_list with feature.tiles"]
+    J --> K["tiles = {}"]
+    K --> L["For each tile in tiles_list: tiles[tile.position] = tile"]
+    L --> M["return Chunk(biome, features, tiles)"]
+```
+
+### Signal Flowcharts
+#### emit
+```mermaid
+flowchart TD
+    A["emit(params)"] --> B["Loop over connections"]
+    B --> C["consumed = func(params)"]
+    C --> D{"consumed == True?"}
+    D -- Yes --> Z["Break loop"]
+    D -- No --> B
+    B --> Z["End"]
+```
+
+
 https://trello.com/b/TVuGyqtP
