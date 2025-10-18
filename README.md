@@ -23,11 +23,5 @@ Legend of Zelda – A link between worlds
 
 ## FLOWCHARTS
 
-```mermaid
-flowchart TD
-
-
-
-```
 
 https://trello.com/b/TVuGyqtP
