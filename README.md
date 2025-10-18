@@ -245,6 +245,7 @@ classDiagram
     Feature --> BiomeTypes : uses
     Biome --> BiomeTypes : has
     Tile --> Signal : uses
+    Tile --> Vector2i : positions
     Player --> Vector2i : positions
     Player --> Vector2f : positions
     World --> Vector2i : chunk_pos
