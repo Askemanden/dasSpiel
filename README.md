@@ -236,6 +236,7 @@ classDiagram
     Chunk --> Biome : has
     Chunk --> Feature : has
     Chunk --> Tile : has
+    Chunk --> Vector2i : ´has
     Tile --> Inventory : interacts
     Tile --> Item : drops
     Tile --> MINING_TYPE : requires
@@ -245,11 +246,11 @@ classDiagram
     Feature --> BiomeTypes : uses
     Biome --> BiomeTypes : has
     Tile --> Signal : uses
-    Tile --> Vector2i : positions
-    Player --> Vector2i : positions
-    Player --> Vector2f : positions
+    Tile --> Vector2i : has
+    Player --> Vector2i : has
+    Player --> Vector2f : has
     World --> Vector2i : chunk_pos
-    Feature --> Vector2i : position
+    Feature --> Vector2i : has
 
 ```
 
