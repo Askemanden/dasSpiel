@@ -138,7 +138,9 @@ classDiagram
         + place_all_components()
         + event_handler(event : pygame.event)
     }
-    create_menu_from_json(json_data : dict, menu_index : int, local_function_map : dict) -> screen_box
+    class global {
+        create_menu_from_json(json_data : dict, menu_index : int, local_function_map : dict) -> screen_box
+    }
 
 %% ==== WORLD ====
     class World {
