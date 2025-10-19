@@ -142,21 +142,21 @@ classDiagram
         create_menu_from_json(json_data : dict, menu_index : int, local_function_map : dict) -> screen_box
     }
 
-    UI_component_placement_info -- Extends --> UI_info
-    UI_component_color_info -- Extends --> UI_info
-    UI_component_text -- Extends --> UI_info
-    UI_button_extension -- Extends --> UI_info
+    UI_component_placement_info --> UI_info : Extends
+    UI_component_color_info --> UI_info : Extends
+    UI_component_text --> UI_info : Extends
+    UI_button_extension --> UI_info : Extends
 
-    screen_box -- Extends --> UI_element
-    screen_box -- Has --> UI_component_placement_info
-    screen_box -- Has --> UI_component_color_info
-    screen_box -- Contains --> UI_component
-    screen_box -- Uses --> global_scope
+    screen_box --> UI_element : Extends
+    screen_box --> UI_component_placement_info : Has
+    screen_box --> UI_component_color_info : Has
+    screen_box --> UI_component : Contains
+    screen_box --> global_scope : Uses
 
-    UI_component -- Has --> UI_component_placement_info
-    UI_component -- Has --> UI_component_color_info
-    UI_component -- Has --> UI_component_text
-    UI_component -- Has --> UI_button_extension
+    UI_component --> UI_component_placement_info : Has
+    UI_component --> UI_component_color_info : Has
+    UI_component --> UI_component_text : Has
+    UI_component --> UI_button_extension : Has
 
 %% ==== WORLD ====
     class World {
