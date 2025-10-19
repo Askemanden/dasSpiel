@@ -157,7 +157,6 @@ class UI_component:                                         # Basisklasse for al
         self.text = UI_info()
         self.button = UI_info()
         self.parent_box = None
-        self.screen = None
         self.rect = pygame.Rect(0, 0, 10, 10)
         self.drawing_method = None
         if visible:
