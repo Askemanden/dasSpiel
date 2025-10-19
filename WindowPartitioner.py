@@ -176,7 +176,6 @@ class UI_component:                                         # Basisklasse for al
         self.button.update()
 
     def event_handling(self, event):
-        #self.text.event_handling(event)
         self.button.event_handling(event)
 
     def draw_visible(self, screen):
@@ -298,9 +297,9 @@ class screen_box (UI_element):                                       # En boks p
                                                                         # update kalder ikke den matematiktunge place_all_buttons, da den kun behøver at blive kaldt når en container tilføjes eller fjernes, eller kassen flyttes.
         for container in self.components:
            container.update()
-        for event in pygame.event.get():
-            for component in self.components:
-                component.event_handling(event)
+        #for event in pygame.event.get():
+        #    for component in self.components:
+        #        component.event_handling(event)
 
     def place_component(self, component, automatic_button_index):       # sætter x og y positionen for en knap baseret på dens placering KUN i forhold til andre af dens type.
                                                                         # Bredden og højden beregnes af screen_boxen, da dette er lettere.

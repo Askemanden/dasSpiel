@@ -34,15 +34,22 @@ function_map = {
 }
 
 def esc_menu(menu, screen):
-        menu.update()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                quit()
-            else:
-                menu.event_handler(event)
-        menu.draw(screen)
-        pygame.display.flip()
+    menu.update()
 
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            quit()
+        elif event.type == pygame.KEYDOWN:
+            print("knap")
+            if event.key == pygame.K_ESCAPE:
+                print("esc")
+                start()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            print("museklik")
+            menu.event_handler(event)
+
+    menu.draw(screen)
+    pygame.display.flip()
 
 def main():
 
@@ -94,12 +101,11 @@ def main():
             player.draw(screen)
             paused_text.draw(screen)
             esc_menu(quit_menu, screen)
-            
             continue
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                quit()
             
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == LEFT:
