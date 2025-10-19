@@ -21,6 +21,18 @@ Legend of Zelda – A link between worlds
 | ---- | ----- | ----- |
 | S.M. |       |       |
 
+## Intro
+Start skærm
+<img width="1744" height="917" alt="image" src="https://github.com/user-attachments/assets/2a2b2cb0-54dc-41e4-8b35-31ec000cb210" />
+Debug mode pathfinding linje (kan disables fra settings.py)
+<img width="798" height="597" alt="image" src="https://github.com/user-attachments/assets/170c693e-bf90-4495-b8c4-1e95ecca0191" />
+## Controls
+Click spil for at start.
+Click afslut for at slukke programmet.
+Left click for at bevæge karakteren.
+Right click for at mine/harveste. (der findes ikke et inventar ui endnu, men tingende i dit inventar udskrives til konsollen)
+Escape for at åbne startmenuen igen.
+
 ## How to run
 For at køre programmet kan exe filen main.exe fra dist folderen køres.
 Alternativt kan programmet køres med python interpreteren enten ved at køre main.py fra ens IDE eller med `python main.py` i kommandolinjen. For denne metode sørg for at have alle biblioteker installeret. Disse findes i requirements.txt og kan installeres med kommandoen `pip install -r requirements.txt`
