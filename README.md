@@ -532,7 +532,7 @@ flowchart TD
 flowchart TD
     A["is_blocked(x, y, blocked)"] --> B["in = in_bounds(x, y)"]
     B --> C{"NOT in OR Vector2i(x, y) in blocked"}
-    C -- Yes --> Z["return True"]
+    C -- Yes --> Y["return True"]
     C -- No --> Z["return False"]
 ```
 
@@ -540,7 +540,7 @@ flowchart TD
 ```mermaid
 flowchart TD
     A["in_bounds(x, y)"] --> B{"0 <= x < MAP_WIDTH AND 0 <= y < MAP_HEIGHT"}
-    B -- Yes --> Z["return True"]
+    B -- Yes --> Y["return True"]
     B -- No --> Z["return False"]
 ```
 
@@ -548,7 +548,7 @@ flowchart TD
 ```mermaid
 flowchart TD
     A["move_cost(dx, dy)"] --> B{"dx != 0 AND dy != 0"}
-    B -- Yes --> Z["return sqrt(2)"]
+    B -- Yes --> Y["return sqrt(2)"]
     B -- No --> Z["return 1.0"]
 ```
 #### heuristic
@@ -585,7 +585,7 @@ flowchart TD
     O --> H
     H --> P["subtargets.pop()"]
     P --> Q["subtargets.append(final_world_position)"]
-    Q --> Z["end"]
+    Q --> Y["end"]
 
 ```
 
@@ -621,7 +621,7 @@ flowchart TD
 ```mermaid
 flowchart TD
     A["update(dt)"] --> B{"subtargets empty?"}
-    B -- Yes --> Z["return"]
+    B -- Yes --> Y["return"]
     B -- No --> C["target = subtargets[0]"]
     C --> D["move_vec = target - world_position"]
     D --> E{"move_vec.length() > 0"}
@@ -654,7 +654,7 @@ flowchart TD
     G -- Yes --> Z["return False"]
     G -- No --> H["tile.interacted(inventory.equipped, inventory)"]
     H --> I["print(inventory.items)"]
-    I --> Z["return True"]
+    I --> Y["return True"]
 ```
 
 ### World Flowcharts
@@ -687,9 +687,9 @@ flowchart TD
     A["emit(params)"] --> B["Loop over connections"]
     B --> C["consumed = func(params)"]
     C --> D{"consumed == True?"}
-    D -- Yes --> Z["Break loop"]
+    D -- Yes --> Z["End"]
     D -- No --> B
-    B --> Z["End"]
+    B --> Z
 ```
 
 
