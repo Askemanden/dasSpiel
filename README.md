@@ -532,7 +532,7 @@ flowchart TD
 ```mermaid
 flowchart TD
     A["move_cost(dx, dy)"] --> B{"dx != 0 AND dy != 0"}
-    B -- Yes --> Z["return sqrt(2)"]
+    B -- Yes --> Y["return sqrt(2)"]
     B -- No --> Z["return 1.0"]
 ```
 #### heuristic
