@@ -84,12 +84,17 @@ def main():
     with open("menu.json", "r", encoding="utf-8") as f:
         menu_data = json.load(f)
     quit_menu = create_menu_from_json(menu_data, 0, function_map)
+    paused_text = create_menu_from_json(menu_data, 1, function_map)
     pygame.display.flip()   # Update display
     #dt = clock.tick(1)          # Limit to 60 FPS
 
     while running:
         if main_menu:
+            world.draw(screen)
+            player.draw(screen)
+            paused_text.draw(screen)
             esc_menu(quit_menu, screen)
+            
             continue
 
         for event in pygame.event.get():

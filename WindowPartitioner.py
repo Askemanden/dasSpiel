@@ -107,6 +107,8 @@ class UI_component_text(UI_info):
     def update(self):
         if self.component.hovered:
             self.bold = True
+        else:
+            self.bold = False
 
     def draw(self, screen):
         image = self.font.render(self.text, True, self.get_text_color())
@@ -242,13 +244,13 @@ class UI_element:                                                       # Basisk
         pass
 
 class screen_box (UI_element):                                       # En boks på skærmen der kan indeholde knapper og items.
-    def __init__(self, placement : UI_component_placement_info, color : UI_component_color_info):
+    def __init__(self, placement : UI_component_placement_info, color : UI_component_color_info, border_width = 8):
         super().__init__(placement)
         #self.screen_position_x = placement.x - placement.width * 0.5
         #self.screen_position_y = placement.y - placement.height * 0.5
         #self.rect = pygame.Rect(self.screen_position_x, self.screen_position_y, placement.width, placement.height)
 
-        self.border_width = 8
+        self.border_width = border_width
         
         self.color_info = color
         self.fill_color = (198, 198, 198)
@@ -548,8 +550,12 @@ def create_menu_from_json(json_data : dict, menu_index : int, local_function_map
         (json_data["color_info"][3], json_data["color_info"][4], json_data["color_info"][5]),
         (json_data["color_info"][6], json_data["color_info"][7], json_data["color_info"][8])
     )
+    if "border" in json_data:
+        border = json_data["border"]
+    else:
+        border = 8
 
-    menu = screen_box(placement_info, color_info)
+    menu = screen_box(placement_info, color_info, border)
 
     for index in range(len(json_data["components"])):
         
@@ -670,7 +676,7 @@ class game_state():
         while self.running:
             self.game_func_pointer()
 
-# Testkode
+# Testkode virker ikke i øjeblikket pga. ændringer i menu strukturen.
 if __name__ == "__main__":
     pygame.init()
     pygame.font.init()

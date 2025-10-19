@@ -11,11 +11,12 @@
             189,
             0
         ],
+        "border": 8,
         "placement_info": [
-            400,
+            702,
             200,
-            600,
-            300,
+            500,
+            250,
             "center",
             "center"
         ],
@@ -101,29 +102,37 @@
             160,
             160,
             160,
-            120,
-            160,
-            180,
+            250,
+            250,
+            250,
             134,
             189,
             0
         ],
+        "border": false,
         "placement_info": [
-            400,
-            200,
-            600,
-            300,
+            702,
+            351,
+            0,
+            0,
             "center",
             "center"
         ],
         "components": {
             "0": {
                 "color_info": null,
-                "visible": true,
-                "placement_info": null,
-                "text": "knap0",
-                "text_size": null,
-                "button_function": "quit"
+                "visible": false,
+                "placement_info": [
+                    0,
+                    50,
+                    100,
+                    100,
+                    "center",
+                    "center"
+                ],
+                "text": "Game Paused",
+                "text_size": 60,
+                "button_function": null
             }
         }
     }
