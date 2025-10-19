@@ -21,6 +21,10 @@ Legend of Zelda – A link between worlds
 | ---- | ----- | ----- |
 | S.M. |       |       |
 
+## How to run
+For at køre programmet kan exe filen main.exe fra dist folderen køres.
+Alternativt kan programmet køres med python interpreteren enten ved at køre main.py fra ens IDE eller med `python main.py` i kommandolinjen. For denne metode sørg for at have alle biblioteker installeret. Disse findes i requirements.txt og kan installeres med kommandoen `pip install -r requirements.txt`
+
 ## FLOWCHARTS OG KLASSEDIAGRAMMER
 
 ```mermaid
