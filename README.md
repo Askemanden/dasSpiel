@@ -1,4 +1,4 @@
-# dasSpiel
+# DasSpiel
 
 **Wir machen das Spiel des Übermenschen**
 
@@ -138,9 +138,25 @@ classDiagram
         + place_all_components()
         + event_handler(event : pygame.event)
     }
-    class global {
+    class global_scope {
         create_menu_from_json(json_data : dict, menu_index : int, local_function_map : dict) -> screen_box
     }
+
+    UI_component_placement_info -- Extends --> UI_info
+    UI_component_color_info -- Extends --> UI_info
+    UI_component_text -- Extends --> UI_info
+    UI_button_extension -- Extends --> UI_info
+
+    screen_box -- Extends --> UI_element
+    screen_box -- Has --> UI_component_placement_info
+    screen_box -- Has --> UI_component_color_info
+    screen_box -- Contains --> UI_component
+    screen_box -- Uses --> global_scope
+
+    UI_component -- Has --> UI_component_placement_info
+    UI_component -- Has --> UI_component_color_info
+    UI_component -- Has --> UI_component_text
+    UI_component -- Has --> UI_button_extension
 
 %% ==== WORLD ====
     class World {
