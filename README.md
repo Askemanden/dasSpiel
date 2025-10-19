@@ -25,7 +25,8 @@ Legend of Zelda – A link between worlds
 For at køre programmet kan exe filen main.exe fra dist folderen køres.
 Alternativt kan programmet køres med python interpreteren enten ved at køre main.py fra ens IDE eller med `python main.py` i kommandolinjen. For denne metode sørg for at have alle biblioteker installeret. Disse findes i requirements.txt og kan installeres med kommandoen `pip install -r requirements.txt`
 
-## FLOWCHARTS OG KLASSEDIAGRAMMER
+## FLOWDIAGRAMMER OG KLASSEDIAGRAMMER
+### Spillet
 
 ```mermaid
 classDiagram
@@ -49,114 +50,6 @@ classDiagram
         + update(dt:float) void
         + interact(params:list[[int,int], World]) bool
     }
-
-    %% ==== UI ENGINE ====
-    class UI_info {
-        + __init__()
-        + update()
-        + event_handling(event : pygame.event)
-        + draw(screen : pygame.surface)
-    }
-    class UI_component_placement_info {
-        - int x
-        - int y
-        - int width
-        - int height
-        - str anchor_x
-        - str anchor_y
-
-        + __init__(x : int, y : int, width : int, height : int, anchor_x : str, anchor_y : str)
-    }
-    class UI_component_color_info {
-        - RGB primary_color
-        - RGB secondary_color
-        - RGB accent_color
-        - RGB primary_complementary_color
-        - RGB secondary_complementary_color
-
-        + __init__(primary_color : RGB, secondary_color : RGB, accent_color : RGB)
-        
-    }
-    class UI_component_text {
-        - UI_component component
-        - str text
-        - pygame.font font
-        - pygame.font bold_font
-        - bool bold
-
-        + __init__(component : UI_component, text : str, size : int)
-        + get_text_color() -> RGB
-    }
-    class UI_button_extension {
-        - function function
-        - UI_component component
-        
-        + __init__(component : UI_component, function : function)
-    }
-    class UI_component {
-        - UI_component_color_info color_info
-        - bool hovered
-        - UI_component_placement_info placement_info
-        - UI_info text
-        - UI_info button
-        - UI_element parent_box
-        - pygame.rect rect
-        - function drawing_method
-
-        + __init__(visible : bool, placement_info : UI_p_info, color_info : UI_c_info)
-        + update_color()
-        + draw_visible(screen)
-        + draw_invisible(screen)
-        + drawing_helper_visible()
-        + drawing_helper_invisible()
-    }
-
-    class UI_element {
-        - int screen_position_x
-        - int screen_position_y
-        - pygame.rect rect
-        - UI_c_info color_info
-
-        + __init__(placement : UI_p_info)
-        + update()
-        + move(x : int, y : int)
-        + draw(screen : pygame.surface)
-    }
-    class screen_box {
-        - int border_width
-        - UI_c_info color_info
-        - RGB fill_color
-        - RGB corder_color
-        - list~UI_component~ components
-        - int number_of_buttons
-        
-        + __init__(placement : UI_p_info, color : UI_c_info, border_width : int)
-        + create_UIcomponent(visible : bool, color : UI_c_info, placement_info : UI_p_info, text : str, text_size : int, function : function)
-        + count_buttons()
-        + remove_component(component)
-        + place_component(component : UI_component, automatic_button_index : int)
-        + place_all_components()
-        + event_handler(event : pygame.event)
-    }
-    class global_scope {
-        create_menu_from_json(json_data : dict, menu_index : int, local_function_map : dict) -> screen_box
-    }
-
-    UI_component_placement_info --> UI_info : Extends
-    UI_component_color_info --> UI_info : Extends
-    UI_component_text --> UI_info : Extends
-    UI_button_extension --> UI_info : Extends
-
-    screen_box --> UI_element : Extends
-    screen_box --> UI_component_placement_info : Has
-    screen_box --> UI_component_color_info : Has
-    screen_box --> UI_component : Contains
-    screen_box --> global_scope : Uses
-
-    UI_component --> UI_component_placement_info : Has
-    UI_component --> UI_component_color_info : Has
-    UI_component --> UI_component_text : Has
-    UI_component --> UI_button_extension : Has
 
 %% ==== WORLD ====
     class World {
@@ -364,6 +257,117 @@ classDiagram
     World --> Vector2i : chunk_pos
     Feature --> Vector2i : has
 
+```
+### UI-ENGINE
+``` mermaid
+classDiagram
+    %% ==== UI ENGINE ====
+    class UI_info {
+        + __init__()
+        + update()
+        + event_handling(event : pygame.event)
+        + draw(screen : pygame.surface)
+    }
+    class UI_component_placement_info {
+        - int x
+        - int y
+        - int width
+        - int height
+        - str anchor_x
+        - str anchor_y
+
+        + __init__(x : int, y : int, width : int, height : int, anchor_x : str, anchor_y : str)
+    }
+    class UI_component_color_info {
+        - RGB primary_color
+        - RGB secondary_color
+        - RGB accent_color
+        - RGB primary_complementary_color
+        - RGB secondary_complementary_color
+
+        + __init__(primary_color : RGB, secondary_color : RGB, accent_color : RGB)
+        
+    }
+    class UI_component_text {
+        - UI_component component
+        - str text
+        - pygame.font font
+        - pygame.font bold_font
+        - bool bold
+
+        + __init__(component : UI_component, text : str, size : int)
+        + get_text_color() -> RGB
+    }
+    class UI_button_extension {
+        - function function
+        - UI_component component
+        
+        + __init__(component : UI_component, function : function)
+    }
+    class UI_component {
+        - UI_component_color_info color_info
+        - bool hovered
+        - UI_component_placement_info placement_info
+        - UI_info text
+        - UI_info button
+        - UI_element parent_box
+        - pygame.rect rect
+        - function drawing_method
+
+        + __init__(visible : bool, placement_info : UI_p_info, color_info : UI_c_info)
+        + update_color()
+        + draw_visible(screen)
+        + draw_invisible(screen)
+        + drawing_helper_visible()
+        + drawing_helper_invisible()
+    }
+
+    class UI_element {
+        - int screen_position_x
+        - int screen_position_y
+        - pygame.rect rect
+        - UI_c_info color_info
+
+        + __init__(placement : UI_p_info)
+        + update()
+        + move(x : int, y : int)
+        + draw(screen : pygame.surface)
+    }
+    class screen_box {
+        - int border_width
+        - UI_c_info color_info
+        - RGB fill_color
+        - RGB corder_color
+        - list~UI_component~ components
+        - int number_of_buttons
+        
+        + __init__(placement : UI_p_info, color : UI_c_info, border_width : int)
+        + create_UIcomponent(visible : bool, color : UI_c_info, placement_info : UI_p_info, text : str, text_size : int, function : function)
+        + count_buttons()
+        + remove_component(component)
+        + place_component(component : UI_component, automatic_button_index : int)
+        + place_all_components()
+        + event_handler(event : pygame.event)
+    }
+    class global_scope {
+        create_menu_from_json(json_data : dict, menu_index : int, local_function_map : dict) -> screen_box
+    }
+
+    UI_component_placement_info --> UI_info : Extends
+    UI_component_color_info --> UI_info : Extends
+    UI_component_text --> UI_info : Extends
+    UI_button_extension --> UI_info : Extends
+
+    screen_box --> UI_element : Extends
+    screen_box --> UI_component_placement_info : Has
+    screen_box --> UI_component_color_info : Has
+    screen_box --> UI_component : Contains
+    screen_box --> global_scope : Uses
+
+    UI_component --> UI_component_placement_info : Has
+    UI_component --> UI_component_color_info : Has
+    UI_component --> UI_component_text : Has
+    UI_component --> UI_button_extension : Has
 ```
 
 ### Main
