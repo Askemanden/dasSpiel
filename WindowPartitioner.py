@@ -143,15 +143,20 @@ class UI_button_extension(UI_info):
 """
 
 class UI_component:                                         # Basisklasse for alle UI komponenter til et UI_element.
-    def __init__(self, placement_info: UI_component_placement_info = UI_info(), color_info: UI_component_color_info = UI_info()):
+    def __init__(self, visible = True, placement_info: UI_component_placement_info = UI_info(), color_info: UI_component_color_info = UI_info()):
         self.color_info = color_info
         self.hovered = False
         self.placement_info = placement_info
         self.text = UI_info()
         self.button = UI_info()
         self.parent_box = None
-
+        self.screen = None
         self.rect = pygame.Rect(0, 0, 10, 10)
+        self.drawing_method = None
+        if visible:
+            self.drawing_method = self.drawing_helper_visible
+        else:
+            self.drawing_method = self.drawing_helper_invisible
 
     def update_color(self):
         if not isinstance(self.color_info, UI_component_color_info):
@@ -167,8 +172,7 @@ class UI_component:                                         # Basisklasse for al
         #self.text.event_handling(event)
         self.button.event_handling(event)
 
-    def draw(self, screen):
-       
+    def draw_visible(self, screen):
         if not isinstance(self.color_info, UI_component_color_info):
            color_source = self.parent_box.color_info.secondary_color
            accent_color = self.parent_box.color_info.accent_color
@@ -184,6 +188,20 @@ class UI_component:                                         # Basisklasse for al
         else:
             pygame.draw.rect(screen, color_source, self.rect)
         self.text.draw(screen)
+
+    def draw_invisible(self, screen):
+        self.text.draw(screen)
+
+    def drawing_helper_invisible(self):
+        self.draw_invisible(self.screen)
+
+    def drawing_helper_visible(self):
+        self.draw_visible(self.screen)
+
+    def draw(self, screen):
+       self.screen = screen
+       self.drawing_method()
+        
 
 
 """
@@ -204,9 +222,9 @@ class alignment(enum.Enum):
 
 class UI_element:                                                       # Basisklasse for alle UI elementer.
     def __init__(self, placement : UI_component_placement_info):
-        self.screen_position_x = placement.x
-        self.screen_position_y = placement.y
-        self.rect = pygame.Rect(placement.x, placement.y, placement.width, placement.height)                           # Basisklasse har en rektangel.
+        self.screen_position_x = placement.x - placement.width * 0.5
+        self.screen_position_y = placement.y - placement.height * 0.5
+        self.rect = pygame.Rect(self.screen_position_x, self.screen_position_y, placement.width, placement.height)                           # Basisklasse har en rektangel.
         self.color_info = UI_info()
 
     def update(self):
@@ -221,9 +239,9 @@ class UI_element:                                                       # Basisk
 class screen_box (UI_element):                                       # En boks på skærmen der kan indeholde knapper og items.
     def __init__(self, placement : UI_component_placement_info, color : UI_component_color_info):
         super().__init__(placement)
-        self.screen_position_x = placement.x - placement.width * 0.5
-        self.screen_position_y = placement.y - placement.height * 0.5
-        self.rect = pygame.Rect(self.screen_position_x, self.screen_position_y, placement.width, placement.height)
+        #self.screen_position_x = placement.x - placement.width * 0.5
+        #self.screen_position_y = placement.y - placement.height * 0.5
+        #self.rect = pygame.Rect(self.screen_position_x, self.screen_position_y, placement.width, placement.height)
 
         self.border_width = 8
         
@@ -234,8 +252,8 @@ class screen_box (UI_element):                                       # En boks p
         self.components = []
         self.number_of_buttons = 0                                      # Antallet af automatisk placerede knapper i listen af containere. Bruges til at arrangere knapperne jævnt.
 
-    def create_UIcomponent(self, color : UI_component_color_info = UI_info(), placement_info : UI_component_placement_info = UI_info(), text = "", text_size = 20, function = None):
-        component = UI_component(placement_info, color)
+    def create_UIcomponent(self, visible = True, color : UI_component_color_info = UI_info(), placement_info : UI_component_placement_info = UI_info(), text = "", text_size = 20, function = None):
+        component = UI_component(visible, placement_info, color)
         component.parent_box = self
         text_object = UI_component_text(component, text, text_size)
         component.text = text_object
@@ -246,7 +264,7 @@ class screen_box (UI_element):                                       # En boks p
         self.components.append(component)
         self.place_all_components()
 
-    def add_UIcomponent(self, container):                               # Tilføjer et UI-komponent til listen af komponenter.
+    """def add_UIcomponent(self, container):                               # Tilføjer et UI-komponent til listen af komponenter.
         if container in self.components:
             return False
         if isinstance(container.placement_info, UI_component_placement_info):
@@ -257,7 +275,7 @@ class screen_box (UI_element):                                       # En boks p
         container.parent_box = self
         self.components.append(container)
         self.place_all_components()
-        return True
+        return True"""
     
     def count_buttons(self):                                            # Tæller antallet af automatisk placerede knapper i listen af containere.
         count = 0
@@ -266,13 +284,6 @@ class screen_box (UI_element):                                       # En boks p
                 count += 1
         self.number_of_buttons = count
 
-    def rainbow(self):
-        temporary_colors : UI_component_color_info = self.color_info
-        temporary_colors.primary_color = self.color_info.accent_color
-        temporary_colors.accent_color = self.color_info.primary_color
-        self.color_info = temporary_colors
-        self.update()
-
     def remove_container(self, container):                              # Fjerner en container fra listen af containere.
         pass # TODO
 
@@ -280,6 +291,9 @@ class screen_box (UI_element):                                       # En boks p
                                                                         # update kalder ikke den matematiktunge place_all_buttons, da den kun behøver at blive kaldt når en container tilføjes eller fjernes, eller kassen flyttes.
         for container in self.components:
            container.update()
+        for event in pygame.event.get():
+            for component in self.components:
+                component.event_handling(event)
 
     def place_component(self, component, automatic_button_index):       # sætter x og y positionen for en knap baseret på dens placering KUN i forhold til andre af dens type.
                                                                         # Bredden og højden beregnes af screen_boxen, da dette er lettere.
@@ -352,6 +366,11 @@ class screen_box (UI_element):                                       # En boks p
             container.draw(screen)
 
 
+class dropdown(screen_box):
+    def __init__(self, placement : UI_component_placement_info, color : UI_component_color_info):
+        super().__init__(placement, color)
+        self.placement_info = placement
+        self.color_info = color
 
 
 
@@ -432,32 +451,70 @@ class label(UI_component):
 ██████████████████████████████████████████████████████████████████████████████████████████████████████
 """
 
-main_menu = {   # skabelon til at skabe en menu
-    "color_info": [198, 198, 198, 0, 167, 205, 134, 189, 0],
-    "placement_info": [400, 300, 300, 250, "center", "center"],
-    "components": {
-        0: {
-            "color_info": None,
-            "placement_info": None,
-            "text": "Afslut",
-            "button_function": "quit"
-        },
-        1: {
-            "color_info": None,
-            "placement_info": None,
-            "text": "Spil",
-            "button_function": "Start"
-        },
-        2: {
-            "color_info": [22, 124, 198, 43, 80, 170, 79, 168, 111],
-            "placement_info": [0, -40, 140, 60, "center", "center"],
-            "text": "Das Spiel",
-            "button_function": None
+main_menu =  {
+    "0": {
+        "color_info": [ 160, 160, 160, 120, 160, 180, 134, 189, 0 ],
+        "placement_info": [ 400, 200, 600, 300, "center", "center" ],
+        "components": {
+            "0": {
+                "color_info": None,
+                "visible": True,
+                "placement_info": None,
+                "text": "Afslut",
+                "text_size": None,
+                "button_function": "quit"
+            },
+            "1": {
+                "color_info": None,
+                "visible": True,
+                "placement_info": None,
+                "text": "Spil",
+                "text_size": None,
+                "button_function": "start"
+            },
+            "2": {
+                "color_info": [ 255, 255, 255, 43, 80, 170, 79, 168, 111 ],
+                "visible": True,
+                "placement_info": [ 0, 20, 140, 0, "center", "Askeslaske" ],
+                "text": "Das Spiel",
+                "text_size": 60,
+                "button_function": None
+            },
+            "3": {
+                "color_info": None,
+                "visible": True,
+                "placement_info": [ 0, 100, 140, 0, "center", "Askeslaske" ],
+                "text": "Das spiel, der Übermenschen",
+                "text_size": 26,
+                "button_function": None
+            },
+            "4": {
+                "color_info": None,
+                "visible": True,
+                "placement_info": [ 0, 130, 140, 0, "center", "Askeslaske" ],
+                "text": "Skabt af Jacob, Aske og Louis",
+                "text_size": 15,
+                "button_function": None
+            }
+        }
+    },
+    "1": {
+        "color_info": [ 160, 160, 160, 120, 160, 180, 134, 189, 0 ],
+        "placement_info": [ 400, 200, 600, 300, "center", "center" ],
+        "components": {
+            "0": {
+                "color_info": None,
+                "visible": True,
+                "placement_info": None,
+                "text": "knap0",
+                "text_size": None,
+                "button_function": "quit"
+            }
         }
     }
 }
 
-
+ 
 #with open("menu.json", "w", encoding="utf-8") as f:
 #    json = json.dump(main_menu, f, indent=4)
 
@@ -471,7 +528,8 @@ function_map = {
 
 menus = []
 
-def create_menu_from_json(json_data):
+def create_menu_from_json(json_data : dict, menu_index : int) -> screen_box:
+    json_data = json_data[f"{menu_index}-screen_box"]
     placement_info = UI_component_placement_info(
         json_data["placement_info"][0],
         json_data["placement_info"][1],
@@ -524,8 +582,88 @@ def create_menu_from_json(json_data):
         else:
             func_key = None
 
-        menu.create_UIcomponent(component_color, component_placement, component_text, component_text_size, func_key)
+        menu.create_UIcomponent(index_component["visible"], component_color, component_placement, component_text, component_text_size, func_key)
     menus.append(menu)
+    return(menu)
+
+class game_state():
+    def __init__(self):
+        self.state = "main menu"
+        self.menus = []
+        self.running = True
+        self.game_func_pointer = None
+        self.screen = None
+        self.screen_width = 800
+        self.screen_height = 600
+        self.editor_json_data = None
+
+        self.function_map = {
+            "quit" : self.quit,
+            "start": self.start
+        }
+
+        self.state_map = {
+            "main menu": self.main_menu,
+            "main_menu": self.main_menu,
+            "editor"   : self.editor,
+            None       : None
+        }
+
+
+    def quit(self):
+        self.running = False
+    
+    def start(self):
+        self.state = "editor"
+
+#//\\// Tilstandsfunktioner \\//\\#
+# Hver tilstands main-funktion
+# Det er lavet således fordi en if-sætnining ikke behøves at blive brugt hvert frame, men kun når en ænding af tilstand sker.
+
+    def main_menu(self):
+        for menu in menus:
+            menu.update()
+        self.event_handling()
+        
+    def editor(self):
+        pass
+
+    def shift_state(self):      # Rydder skærmen og skifter mellem overgange. Jeg er ikke helt sikker på om denne skal bruges endnu.
+        self.update_state()
+        # Gør noget mere.
+
+    def set_game_state(self, state : str):
+        self.state = state
+        #TODO errorhandling, og håndtering af ugyldige værdier
+        self.update_state()
+
+    def update_state(self):     # Ændrer state-pointeren, og skifter tilstand.
+        self.game_func_pointer = self.state_map.get(self.state, None)
+
+    def event_handling(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:   # Tjek om programmet skal stoppes
+                self.running = False
+            
+
+    def setup(self):
+        pygame.init()
+        pygame.font.init()
+        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+        pygame.display.set_caption("UI-editor")
+
+        self.state = "main menu"
+        with open("editor.json", "r", encoding="utf-8") as f:
+            self.editor_json_data = json.load(f)
+
+        for i in range(2):
+            self.menus.append(create_menu_from_json(self.editor_json_data, i))
+        
+        
+
+    def loop(self):
+        while self.running:
+            self.game_func_pointer()
 
 # Testkode
 if __name__ == "__main__":
@@ -533,7 +671,7 @@ if __name__ == "__main__":
     pygame.font.init()
     with open("menu.json", "r", encoding="utf-8") as f:
        menu_data = json.load(f)
-    create_menu_from_json(menu_data)
+    create_menu_from_json(menu_data, 0)
 
     screen = pygame.display.set_mode((800, 500))
     pygame.display.set_caption("Window Partitioner")
@@ -547,6 +685,8 @@ if __name__ == "__main__":
     #kasse.create_UIcomponent(UI_info(), UI_info(), "Akselslakel", quit)
     #kasse.create_UIcomponent(UI_info(), UI_component_placement_info(0, 0, 80, 40, "center", "center"), "Charlie")
 
+
+       
 
     while running:
         #popup_menu.update()

@@ -1,89 +1,130 @@
 {
-    "color_info": [
-        160,
-        160,
-        160,
-        120,
-        160,
-        180,
-        134,
-        189,
-        0
-    ],
-    "placement_info": [
-        400,
-        200,
-        600,
-        300,
-        "center",
-        "center"
-    ],
-    "components": {
-        "0": {
-            "color_info": null,
-            "placement_info": null,
-            "text": "Afslut",
-            "text_size": null,
-            "button_function": "quit"
-        },
-        "1": {
-            "color_info": null,
-            "placement_info": null,
-            "text": "Spil",
-            "text_size": null,
-            "button_function": "start"
-        },
-        "2": {
-            "color_info": [
-                255,
-                255,
-                255,
-                43,
-                80,
-                170,
-                79,
-                168,
-                111
-            ],
-            "placement_info": [
-                0,
-                20,
-                140,
-                0,
-                "center",
-                "Askeslaske"
-            ],
-            "text": "Das Spiel",
-            "text_size": 60,
-            "button_function": null
-        },
-        "3": {
-            "color_info": null,
-            "placement_info": [
-                0,
-                100,
-                140,
-                0,
-                "center",
-                "Askeslaske"
-            ],
-            "text": "Das spiel, der Übermenschen",
-            "text_size": 26,
-            "button_function": null
-        },
-        "4": {
-            "color_info": null,
-            "placement_info": [
-                0,
-                130,
-                140,
-                0,
-                "center",
-                "Askeslaske"
-            ],
-            "text": "Skabt af Jacob, Aske og Louis",
-            "text_size": 15,
-            "button_function": null
+    "0-screen_box": {
+        "color_info": [
+            160,
+            160,
+            160,
+            120,
+            160,
+            180,
+            134,
+            189,
+            0
+        ],
+        "placement_info": [
+            400,
+            200,
+            600,
+            300,
+            "center",
+            "center"
+        ],
+        "components": {
+            "0": {
+                "color_info": null,
+                "visible": true,
+                "placement_info": null,
+                "text": "Afslut",
+                "text_size": null,
+                "button_function": "quit"
+            },
+            "1": {
+                "color_info": null,
+                "visible": true,
+                "placement_info": null,
+                "text": "Spil",
+                "text_size": null,
+                "button_function": "start"
+            },
+            "2": {
+                "color_info": [
+                    255,
+                    255,
+                    255,
+                    43,
+                    80,
+                    170,
+                    79,
+                    168,
+                    111
+                ],
+                "visible": true,
+                "placement_info": [
+                    0,
+                    20,
+                    140,
+                    0,
+                    "center",
+                    "Askeslaske"
+                ],
+                "text": "Das Spiel",
+                "text_size": 60,
+                "button_function": null
+            },
+            "3": {
+                "color_info": null,
+                "visible": true,
+                "placement_info": [
+                    0,
+                    100,
+                    140,
+                    0,
+                    "center",
+                    "Askeslaske"
+                ],
+                "text": "Das spiel die Übermenschen",
+                "text_size": 26,
+                "button_function": null
+            },
+            "4": {
+                "color_info": null,
+                "visible": true,
+                "placement_info": [
+                    0,
+                    135,
+                    140,
+                    0,
+                    "center",
+                    "Askeslaske"
+                ],
+                "text": "Skabt af Jacob, Aske og Louis",
+                "text_size": 15,
+                "button_function": null
+            }
+        }
+    },
+    "0-dropdown": {
+
+    },
+    "1-screen_box": {
+        "color_info": [
+            160,
+            160,
+            160,
+            120,
+            160,
+            180,
+            134,
+            189,
+            0
+        ],
+        "placement_info": [
+            400,
+            200,
+            600,
+            300,
+            "center",
+            "center"
+        ],
+        "components": {
+            "0": {
+                "color_info": null,
+                "visible": true,
+                "placement_info": null,
+                "text": "knap0",
+                "text_size": null,
+                "button_function": "quit"
+            }
         }
     }
 }
