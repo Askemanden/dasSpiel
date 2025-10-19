@@ -328,6 +328,36 @@ flowchart TD
 ```
 
 ### Pathfind flowcharts
+#### esc menu
+```mermaid
+flowchart TD
+    A["menu.update()"]
+    B["for event in pygame.event.get()"]
+    C{"QUIT?"}
+    D["quit()"]
+    E{"KEYDOWN?"}
+    F{"K_ESCAPE?"}
+    G["start()"]
+    H{"MOUSEBUTTONDOWN?"}
+    I["menu.event_hanlder(event)"]
+    J["menu.draw(screen)
+    pygame.display.flip()"]
+
+    A --> B
+    B --> C
+    C -- True --> D
+    D --> J
+    C -- False --> E
+    E -- True --> F
+    F -- True --> G
+    G --> J
+    E -- False --> H
+    F -- False --> H
+    H -- True --> I
+    I --> J
+    
+
+
 #### astar
 ```mermaid
 flowchart TD
