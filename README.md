@@ -292,12 +292,12 @@ flowchart TD
     H --> I
 
     I --> J{"while running"}
-    J -- True --> J1{if main_menu == True}
-    J1 -- True --> J2[world.draw(screen)
+    J -- True --> J1{"if main_menu == True"}
+    J1 -- True --> J2["world.draw(screen)
     player.draw(screen)
     paused_text.draw(screen)
     esc_menu(quit_menu, screen)
-    continue]
+    continue"]
     J2 --> J1
     J1 -- False --> K["for event in pygame.event.get()"]
     K --> L{"event.type == QUIT"}
