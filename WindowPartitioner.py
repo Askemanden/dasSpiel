@@ -94,7 +94,8 @@ class UI_component_text(UI_info):
         
         self.text = text
         self.size = size
-        self.font = pygame.font.SysFont('Comic Sans', self.size)
+        self.font = pygame.font.SysFont('yu_gothic', self.size)
+        self.bold_font = pygame.font.SysFont('yu_gothic', self.size, bold=True)
         self.bold = False
 
     def get_text_color(self):
@@ -111,8 +112,12 @@ class UI_component_text(UI_info):
         image = self.font.render(self.text, True, self.get_text_color())
         self.text_rect = image.get_rect()
 
-        text_surface = self.font.render(self.text, True, self.get_text_color(), None)
+        if self.bold:
+            text_surface = self.bold_font.render(self.text, True, self.get_text_color(), None)
+        else:
+            text_surface = self.font.render(self.text, True, self.get_text_color(), None)
         screen.blit(text_surface, (self.component.rect.x  + (0.5 * (self.component.rect.width - self.text_rect.width)), self.component.rect.y + self.component.rect.height * 0.2))
+
 
 class UI_button_extension(UI_info):
     def __init__(self, component, function = intet):
@@ -528,7 +533,7 @@ function_map = {
 
 menus = []
 
-def create_menu_from_json(json_data : dict, menu_index : int) -> screen_box:
+def create_menu_from_json(json_data : dict, menu_index : int, local_function_map) -> screen_box:
     json_data = json_data[f"{menu_index}-screen_box"]
     placement_info = UI_component_placement_info(
         json_data["placement_info"][0],
@@ -578,12 +583,12 @@ def create_menu_from_json(json_data : dict, menu_index : int) -> screen_box:
 
         if index_component["button_function"] != None:
             func_key = index_component["button_function"]
-            func_key = function_map.get(func_key, None)
+            func_key = local_function_map.get(func_key, None)
         else:
             func_key = None
 
         menu.create_UIcomponent(index_component["visible"], component_color, component_placement, component_text, component_text_size, func_key)
-    menus.append(menu)
+    #menus.append(menu)
     return(menu)
 
 class game_state():
@@ -676,32 +681,18 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode((800, 500))
     pygame.display.set_caption("Window Partitioner")
 
-    #kasse = screen_box(UI_component_placement_info(300, 200, 400, 250, "Askeslaske"), UI_component_color_info((198, 198, 198), (0, 167, 205), (134, 189, 0)))
-
-    #label1 = label("Dette er en test af Window Partitioner", 27)
-    #kasse.add_UIcomponent(label1)
-
-    #kasse.create_UIcomponent(UI_info(), UI_info(), "Askeslaske", quit)
-    #kasse.create_UIcomponent(UI_info(), UI_info(), "Akselslakel", quit)
-    #kasse.create_UIcomponent(UI_info(), UI_component_placement_info(0, 0, 80, 40, "center", "center"), "Charlie")
-
-
-       
-
     while running:
-        #popup_menu.update()
-        #kasse.update()
+
+        screen.fill((50, 50, 50))                           # Fylder skærmen med en grå farve.
         for box in menus:
             box.update()
-        
 
         for event in pygame.event.get():                    # Håndterer begivenheder som lukning af vindue og museklik.
-            
             if event.type == pygame.QUIT:
                 running = False
             
-            #elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
-                #kasse.move(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
+                menus[0].move(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
             else:
                 for box in menus:
                     box.event_handler(event)

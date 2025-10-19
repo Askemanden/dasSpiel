@@ -4,16 +4,52 @@ from Player import *
 from pathfind import *
 from tile import Tile
 import pygame
+from WindowPartitioner import *
 
 LEFT = 1
 RIGHT = 3
+
+main_menu = True
+running = True
+
+def quit():
+    print("Game Quit")
+    global running
+    running = False
+    global main_menu
+    main_menu = False
+
+
+def start():
+    print("Game Started")
+    global main_menu
+    main_menu = False
+    global running
+    running = True
+
+function_map = {
+    "quit": quit,
+    "start": start,
+    None: None
+}
+
+def esc_menu(menu, screen):
+        menu.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit()
+            else:
+                menu.event_handler(event)
+        menu.draw(screen)
+        pygame.display.flip()
+
 
 def main():
 
     # PYGAME SETUP
     pygame.init()
     screen = pygame.display.set_mode((MAP_WIDTH*TILE_SIZE, MAP_HEIGHT*TILE_SIZE))
-    pygame.display.set_caption("World Draw Test")
+    pygame.display.set_caption("Das Spiel die Übermenschen")
 
     world = World()
     player = Player(health=10)
@@ -30,23 +66,32 @@ def main():
     # RIGHT CLICK CONNECTIONS
     rightClick.connect("interact", player.interact)
 
-    running = True
+    global running
+    global main_menu
     clock = pygame.time.Clock()
     dt = 0
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+            quit()
 
     player.update(dt)
 
     screen.fill((0, 0, 0))  # Clear screen
     world.draw(screen)      # Draw the world
     player.draw(screen)
+    with open("menu.json", "r", encoding="utf-8") as f:
+        menu_data = json.load(f)
+    quit_menu = create_menu_from_json(menu_data, 0, function_map)
     pygame.display.flip()   # Update display
-    dt = clock.tick(1)          # Limit to 60 FPS
+    #dt = clock.tick(1)          # Limit to 60 FPS
 
     while running:
+        if main_menu:
+            esc_menu(quit_menu, screen)
+            continue
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -58,6 +103,9 @@ def main():
                 elif event.button == RIGHT:
                     print("r")
                     rightClick.emit([event.pos, world])
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    main_menu = True
 
 
         player.update(dt)
