@@ -48,15 +48,18 @@ class Vector2:
         return self
     
     def __itruediv__(self, scalar : float):
-        self.change_values(self/scalar)
+        result = self/scalar
+        self.change_values(result.x,result.y)
         return self
     
     def __isub__(self, other : "Vector2"):
-        self.change_values(self - other)
+        result = self - other
+        self.change_values(result.x,result.y)
         return self
 
     def __imul__(self, scalar : float):
-        self.change_values(self * scalar)
+        result = self * scalar
+        self.change_values(result.x,result.y)
         return self
     
     def __str__(self):
