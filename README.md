@@ -439,7 +439,6 @@ flowchart TD
 
 ```
 
-### Pathfind flowcharts
 #### esc menu
 ```mermaid
 flowchart TD
@@ -470,7 +469,7 @@ flowchart TD
     I --> J
 
 ```
-
+### Pathfind flowcharts
 #### astar
 ```mermaid
 flowchart TD
