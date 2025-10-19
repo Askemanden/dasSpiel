@@ -671,9 +671,9 @@ flowchart TD
     A["emit(params)"] --> B["Loop over connections"]
     B --> C["consumed = func(params)"]
     C --> D{"consumed == True?"}
-    D -- Yes --> Y["Break loop"]
+    D -- Yes --> Z["End"]
     D -- No --> B
-    B --> Z["End"]
+    B --> Z
 ```
 
 
