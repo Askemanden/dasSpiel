@@ -81,7 +81,7 @@ class Player:
         ax, ay = a.x * TILE_SIZE + TILE_SIZE/2, a.y * TILE_SIZE + TILE_SIZE/2
         return Vector2f(ax + dx * TILE_SIZE/2, ay + dy * TILE_SIZE/2)
 
-    def newTarget(self, params : list[list[int,int],World]):
+    def newTarget(self, params : list[list[int],World]):
         worldTargetList = params[0]
         worldTarget = Vector2f(worldTargetList[0],worldTargetList[1])
         target: Vector2i = Vector2i(int(worldTarget.x // TILE_SIZE), int(worldTarget.y // TILE_SIZE))
